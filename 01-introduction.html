@@ -389,7 +389,7 @@ class: middle, center, inverse
 
 - denoted by parentheses
 - perform basic (or very sophisticated) operations with your objects
-- you have already used them! 🔦
+- you have already used them! 🚥
 
 
 ```r
@@ -755,7 +755,7 @@ random.vals
 ```
 
 ```
-##  [1]  9 11  7  5  9  5  2  1  5  8  4  4  5  5  5  4  1  6  4  3  6  3  3  4  5  5  4  3  7  6
+##  [1]  6  4  1  5  4  5  6  3  2  8  7  5  5  1  2 12  1  6  2  4  4  6  7  2  5  3  3  4  7  7
 ```
 
 ```r
@@ -764,7 +764,7 @@ selected.vals
 ```
 
 ```
-##  [1]  9 11  7  5  9  5  5  8  5  5  5  6  6  5  5  7  6
+##  [1]  6  5  5  6  8  7  5  5 12  6  6  7  5  7  7
 ```
 
 ```r
@@ -773,7 +773,7 @@ values.not.6
 ```
 
 ```
-##  [1]  9 11  7  5  9  5  2  1  5  8  4  4  5  5  5  4  1  4  3  3  3  4  5  5  4  3  7
+##  [1]  4  1  5  4  5  3  2  8  7  5  5  1  2 12  1  2  4  4  7  2  5  3  3  4  7  7
 ```
 - note that the [] requires you to re-specify the vector you want to use for the operation ☝️
 
@@ -790,7 +790,7 @@ boolean.and
 ```
 
 ```
-##  [1] 7 5 5 5 8 4 4 5 5 5 4 6 4 6 4 5 5 4 7 6
+##  [1] 6 4 5 4 5 6 8 7 5 5 6 4 4 6 7 5 4 7 7
 ```
 
 ```r
@@ -799,7 +799,7 @@ boolean.or
 ```
 
 ```
-##  [1] 5 5 5 5 5 5 3 3 3 5 5 3
+## [1] 5 5 3 5 5 5 3 3
 ```
 
 ```r
@@ -810,7 +810,7 @@ boolean.not
 ```
 
 ```
-##  [1] 7 5 5 5 5 5 5 6 3 6 3 3 5 5 3 7 6
+##  [1] 6 5 5 6 3 7 5 5 6 6 7 5 3 3 7 7
 ```
 ---
 ## Assigning new values
@@ -823,8 +823,8 @@ random.vals
 ```
 
 ```
-##  [1] 1000   11    7    5    9    5    2    1    5    8    4    4    5    5    5    4    1    6    4
-## [20]    3    6    3    3    4    5    5    4    3    7    6
+##  [1] 1000    4    1    5    4    5    6    3    2    8    7    5    5    1    2   12    1    6    2
+## [20]    4    4    6    7    2    5    3    3    4    7    7
 ```
 
 ```r
@@ -833,8 +833,8 @@ random.vals
 ```
 
 ```
-##  [1] 1000 1000 1000    5 1000    5    2    1    5 1000    4    4    5    5    5    4    1 1000    4
-## [20]    3 1000    3    3    4    5    5    4    3 1000 1000
+##  [1] 1000    4    1    5    4    5 1000    3    2 1000 1000    5    5    1    2 1000    1 1000    2
+## [20]    4    4 1000 1000    2    5    3    3    4 1000 1000
 ```
 ---
 ## Non-numerical vectors 🐠
@@ -882,7 +882,7 @@ more.vals
 ```
 
 ```
-##  [1]  3 10  4  4  3  5  2  6  2  8  3  6  6  4  4  4  8  4  6  6
+##  [1]  8  9  8  5  4  5  4  5  6  7  7  3  5  4  7  6  4 10  4  8
 ```
 
 ```r
@@ -891,7 +891,7 @@ more.vals.sorted
 ```
 
 ```
-##  [1]  2  2  3  3  3  4  4  4  4  4  4  5  6  6  6  6  6  8  8 10
+##  [1]  3  4  4  4  4  4  5  5  5  5  6  6  7  7  7  8  8  8  9 10
 ```
 
 ```r
@@ -900,7 +900,7 @@ more.vals.sorted.dec
 ```
 
 ```
-##  [1] 10  8  8  6  6  6  6  6  5  4  4  4  4  4  4  3  3  3  2  2
+##  [1] 10  9  8  8  8  7  7  7  6  6  5  5  5  5  4  4  4  4  4  3
 ```
 ---
 ## Missing data
@@ -913,7 +913,7 @@ fish.numbers
 ```
 
 ```
-##  [1]  5  3  3  8  3  6 11  6  5  5  5  8  8  2  4  7  6  3 10  3
+##  [1]  4  6  4  8  7  6  4  3  4  8  3  5  2  3  4  6  7  3 10  3
 ```
 
 ```r
@@ -922,7 +922,7 @@ fish.numbers
 ```
 
 ```
-##  [1]  5  3  3  8 NA  6 11  6  5  5  5  8  8  2 NA  7  6  3 10  3
+##  [1]  4  6  4  8 NA  6  4  3  4  8  3  5  2  3 NA  6  7  3 10  3
 ```
 
 ```r
@@ -942,7 +942,7 @@ fish.mean.nona
 ```
 
 ```
-## [1] 5.777778
+## [1] 4.944444
 ```
 
 ```r
@@ -951,7 +951,7 @@ fish.mean.nona
 ```
 
 ```
-## [1] 5.777778
+## [1] 4.944444
 ```
 ---
 class: middle, center, inverse
@@ -1063,12 +1063,12 @@ the.matrix
 
 ```
 ##      [,1] [,2] [,3]
-## [1,]    7    5    4
-## [2,]    2    2    4
-## [3,]    5    5    6
-## [4,]    6    8    4
-## [5,]    3    6    3
-## [6,]   10    3    2
+## [1,]    7    6    4
+## [2,]    8    5    6
+## [3,]    5    4    7
+## [4,]    6    3    6
+## [5,]    7    7    3
+## [6,]    2    3    5
 ```
 
 ```r
@@ -1079,12 +1079,12 @@ the.matrix
 
 ```
 ##       bluefish blowfish yellowfish
-## site1        7        5          4
-## site2        2        2          4
-## site3        5        5          6
-## site4        6        8          4
-## site5        3        6          3
-## site6       10        3          2
+## site1        7        6          4
+## site2        8        5          6
+## site3        5        4          7
+## site4        6        3          6
+## site5        7        7          3
+## site6        2        3          5
 ```
 ---
 ## Data frames
@@ -1097,7 +1097,7 @@ fish.df$blowfish # select a specific column using the $ sign
 ```
 
 ```
-## [1] 5 2 5 8 6 3
+## [1] 6 5 4 3 7 3
 ```
 
 ```r
@@ -1106,7 +1106,7 @@ fish.df[1,] # show the first row
 
 ```
 ##       bluefish blowfish yellowfish
-## site1        7        5          4
+## site1        7        6          4
 ```
 
 ```r
@@ -1118,12 +1118,12 @@ fish.df
 
 ```
 ##       bluefish blowfish yellowfish         location
-## site1        7        5          4        Australia
-## site2        2        2          4        Indonesia
-## site3        5        5          6      Philippines
-## site4        6        8          4             Fiji
-## site5        3        6          3         Solomons
-## site6       10        3          2 Papua New Guinea
+## site1        7        6          4        Australia
+## site2        8        5          6        Indonesia
+## site3        5        4          7      Philippines
+## site4        6        3          6             Fiji
+## site5        7        7          3         Solomons
+## site6        2        3          5 Papua New Guinea
 ```
 
 ---
@@ -1136,9 +1136,9 @@ str(fish.df) # check structure of data frame
 
 ```
 ## 'data.frame':	6 obs. of  4 variables:
-##  $ bluefish  : int  7 2 5 6 3 10
-##  $ blowfish  : int  5 2 5 8 6 3
-##  $ yellowfish: int  4 4 6 4 3 2
+##  $ bluefish  : int  7 8 5 6 7 2
+##  $ blowfish  : int  6 5 4 3 7 3
+##  $ yellowfish: int  4 6 7 6 3 5
 ##  $ location  : chr  "Australia" "Indonesia" "Philippines" "Fiji" ...
 ```
 
@@ -1152,12 +1152,12 @@ fish.tibble # view information provided by tibble
 ## # A tibble: 6 × 4
 ##   bluefish blowfish yellowfish location        
 ##      &lt;int&gt;    &lt;int&gt;      &lt;int&gt; &lt;chr&gt;           
-## 1        7        5          4 Australia       
-## 2        2        2          4 Indonesia       
-## 3        5        5          6 Philippines     
-## 4        6        8          4 Fiji            
-## 5        3        6          3 Solomons        
-## 6       10        3          2 Papua New Guinea
+## 1        7        6          4 Australia       
+## 2        8        5          6 Indonesia       
+## 3        5        4          7 Philippines     
+## 4        6        3          6 Fiji            
+## 5        7        7          3 Solomons        
+## 6        2        3          5 Papua New Guinea
 ```
 ---
 # Loading and saving data
@@ -1174,12 +1174,12 @@ loaded.fish.tibble
 
 ```
 ##   bluefish blowfish yellowfish         location
-## 1        7        5          4        Australia
-## 2        2        2          4        Indonesia
-## 3        5        5          6      Philippines
-## 4        6        8          4             Fiji
-## 5        3        6          3         Solomons
-## 6       10        3          2 Papua New Guinea
+## 1        7        6          4        Australia
+## 2        8        5          6        Indonesia
+## 3        5        4          7      Philippines
+## 4        6        3          6             Fiji
+## 5        7        7          3         Solomons
+## 6        2        3          5 Papua New Guinea
 ```
 ---
 class: inverse, center, top
@@ -1217,7 +1217,7 @@ mean(v1)
 ```
 
 ```
-## [1] 9.96
+## [1] 10.75
 ```
 ---
 class: center, top
@@ -1230,7 +1230,7 @@ mean(v2)
 ```
 
 ```
-## [1] 4.75
+## [1] 4.2
 ```
 ---
 class: center, top
