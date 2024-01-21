@@ -90,7 +90,7 @@ To confirm that you're in the right place, you can write getwd() to get your wor
 getwd()
 ```
 
-`r emo::ji("arrow_right")` This looks great. If you're inside your project (as indicated on the upper right corner of your RStudio environment), your working directory should be automatically set to your project directory. 
+`r emo::ji("arrow_right")` If you're inside your project (as indicated on the upper right corner of your RStudio environment), your working directory should be automatically set to your project directory. 
 
 `r emo::ji("arrow_right")` Think of your R-project as a box that contains everything you need to bake a cake. Within it, you may have smaller boxes that contain ingredients, instructions, or tools. 
 ---
@@ -102,7 +102,7 @@ Below, we are installing the _tidyverse_ package using the <span style="color:or
 
 ```{r, echo = TRUE, results = 'hide'}
 # you typically don't need to set repos when installing a package
-#install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 ```
 
 Installing the package downloads its contents to your R library. Before you can start using it, however, you have to load it into your current R session. We can do this using the <span style="color:orange"> *library()* </span> function.
@@ -250,6 +250,12 @@ class: center, top
 (6 * 1^3 + 1)^3 - (6 * 1^3 - 1)^3 - (6 *1^2)^3
 (sin(2) + cos(2))^2 + (sin(2) - cos(2))^2
 ```
+
+Alternatively, you can use the '==' operator
+
+```{r, error = TRUE, echo = TRUE}
+(6 * 1^3 + 1)^3 - (6 * 1^3 - 1)^3 - (6 *1^2)^3 == (sin(2) + cos(2))^2 + (sin(2) - cos(2))^2
+```
 ---
 class: center, top
 # Solution 1.1c `r emo::ji("nerd_face")`
@@ -278,7 +284,7 @@ class: middle, center, inverse
 obj8 <- 9
 sqrt(obj8) # sqrt() is a function
 
-obj9 <- paste("fish", "rule") # paste() is a function
+obj9 <- paste("fish", "23") # paste() is a function
 obj9
 ```
 ---
@@ -290,7 +296,7 @@ obj9
 
 ```{r, echo = TRUE, results='markup'}
 conc.vals <- c(1,2,3,4,5) # c() is the concatenate function - use it to combine numbers
-conc.vals # we have created a cevtor with five numbers
+conc.vals # we have created a vector with five numbers
 
 conc.text <- c("fish1", "fish2", "fish3", "fish4") # or use it to string together words
 conc.text # we have created a vector with four words
@@ -347,7 +353,7 @@ options(width = 100)
 rep1 <- rep(1:5, times = 10) # replicate the sequence 1:5 ten times
 rep1
 
-rep2 <- rep(1:5, esach = 10) # replicate each element in 1:5 ten times
+rep2 <- rep(1:5, each = 10) # replicate each element in 1:5 ten times
 rep2 # notice the difference between 'times' and 'each'
 
 rep3 <- rep("fish", times = 8) # you can also repeat text
@@ -375,14 +381,11 @@ mean.rep
 reps.comb <- c(rep2, rep4) # combine two numerical vectors
 reps.comb
 
-log.rep2 <- log(rep2) # take the log of rep2
-log.rep2
+log.rep4 <- log(rep4) # take the log of rep2
+log.rep4
 
 reps.diff1 <- paste(rep2, rep3) # using paste() to combine vectors of different classes
 reps.diff1 
-
-reps.diff2 <- paste(rep3, rep4) # same operation, but different combination
-reps.diff2
 ```
 ---
 
@@ -422,10 +425,10 @@ Operator | Meaning
 
 ---
 ## Logic in practice
-- to demonstrate logic, we need a somewhat more compledx vector
-- we're creating this using one of the distributional functions, in this case a randeom selection of integers using the <span style="color:orange"> *rpois()* </span> function
+- to demonstrate logic, we need a somewhat more complex vector
+- we're creating this using one of the distributional functions, in this case a selection of integers using the <span style="color:orange"> *rpois()* </span> function
 ```{r, echo = TRUE, results='markup'}
-random.vals <- rpois(30, lambda = 5) # create a new vector with 30 (somewhat) random integers
+random.vals <- rpois(30, lambda = 5) # create a new vector with 30 integers
 random.vals
 
 selected.vals <- random.vals[random.vals > 4] # select values that are greater than 4
@@ -449,7 +452,9 @@ boolean.and
 boolean.or <- random.vals[random.vals == 3 | random.vals == 5] # values that are 3 or 5
 boolean.or
 
-boolean.not <- random.vals[random.vals != 4 & random.vals > 2 & random.vals < 8] # values that are between 2 and 8 but not 4
+boolean.not <- random.vals[random.vals != 4 & 
+                             random.vals > 2 & 
+                             random.vals < 8] # between 2 and 8 but not 4
 boolean.not
 ```
 ---
@@ -465,7 +470,7 @@ random.vals
 ```
 ---
 ## Non-numerical vectors `r emo::ji('tropical_fish')`
-- vectors can also consist of many different words
+- vectors can also consist of different character strings
 - same principles as for numbers apply, but logical operations are limited
 ```{r, echo = TRUE}
 fish.comm <- paste(rep(c("whitefish", "bluefish", "yellowfish"), 5)) # create a vector of words
@@ -494,7 +499,7 @@ more.vals.sorted.dec
 ---
 ## Missing data
 - sometimes, vectors contain elements that aren't there or possible, called 'NAs'
-- this is not always a problem, but can throw some functions that need numeric values
+- this is not always a problem, but can lead to errors in functions that need numeric values
 ```{r, echo = TRUE}
 fish.numbers <- rpois(20, 5) # create vector with rpois()
 fish.numbers
@@ -543,9 +548,9 @@ There are several different types of data classes in R
 numbers <- seq(1:20) # create vector of numbers
 
 class(numbers) # find data class using class() or str()
+str(numbers)
 
-is.numeric(numbers) # check data class using "is" and "as"
-is.character(numbers) # check data class using "is" and "as"
+is.numeric(numbers) # check data class using "is" 
 
 numbers.char <- as.character(numbers) # turn data into characters
 numbers.char # note the quotes around the numbers
@@ -570,7 +575,7 @@ the.matrix
 - for example, we can create a dataset of three fish species across six sites `r emo::ji('fish')` `r emo::ji('blowfish')` `r emo::ji('tropical_fish')`
 - matrices can only hold one type of data (usually numeric)
 ```{r, echo = TRUE}
-the.matrix <- matrix(rpois(18, 3), nrow = 6, byrow = FALSE) # create a matrix
+the.matrix <- matrix(rpois(18, 5), nrow = 6, byrow = FALSE) # create a matrix
 the.matrix
 colnames(the.matrix) <- c("bluefish", "blowfish", "yellowfish") # assign column names
 rownames(the.matrix) <- c("site1", "site2", "site3", "site4", "site5", "site6") # assign row names
@@ -586,7 +591,8 @@ fish.df$blowfish # select a specific column using the $ sign
 
 fish.df[1,] # show the first row
 
-locations <- c("Australia", "Indonesia", "Philippines", "Fiji", "Solomons", "Papua New Guinea") # make a vector with 6 site locations
+locations <- c("Australia", "Indonesia", "Philippines", 
+               "Fiji", "Solomons", "Papua New Guinea") # vector with 6 site locations
 fish.df$location <- locations # add a character vector to a data frame
 fish.df
 ```
@@ -623,7 +629,7 @@ class: inverse, center, top
 
 ### c) Retain only values <6 and calculate the mean again
 
-### d) Download the dataset called "coralreefherbivores.csv" from Canvas, and put it in your working directory in a folder called "data"
+### d) Download the dataset called "coralreefherbivores.csv" from the link below, and put it in your working directory in a folder called "data"
 
 ### e) Read in the data using the  <span style="color:orange"> *read_csv()* </span> function, specifying the correct path to the "data" folder
 
