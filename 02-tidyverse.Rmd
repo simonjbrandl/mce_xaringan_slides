@@ -19,7 +19,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-background-image: url("images/IMG_2100.jpg")
+background-image: url("images/IMG_2100.JPG")
 background-size: cover
 class: center, top, inverse
 
