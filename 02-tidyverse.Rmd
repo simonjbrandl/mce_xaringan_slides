@@ -85,7 +85,7 @@ knitr::include_graphics("images/tidyverse.png")
 - functions are meant to be intuitive
 
 .pull-right[
-```{r echo=FALSE, out.width="50%"}
+```{r echo=FALSE, out.width="80%"}
 knitr::include_graphics("images/tidy_concept.png")
 ```
 ]
@@ -206,6 +206,8 @@ class: center, middle, inverse
 
 - the <span style="color:orange"> *select()* </span> function allows you to keep columns in your dataset based on names, positions, or criteria
 
+- by using a - sign, you can de-select columns from your dataset
+
 ```{r, echo = TRUE}
 fish.tbl.select <- fish.tibble %>% # retain the columns blowfish and location
   select(blowfish, location)
@@ -218,9 +220,7 @@ fish.tbl.select2
 ---
 ### Selecting using positions or criteria
 
-- by using a - sign, you can de-select columns from your dataset
-
-- you can also employ criteria for negative or positive selection using
+- you can also choose based on column positions or employ criteria for negative or positive selection
 
 ```{r, echo = TRUE}
 fish.tbl.select3 <- fish.tibble %>% # retain only the third and fourth column
@@ -237,9 +237,10 @@ class: center, middle, inverse
 # `r emo::ji("bug")`  `r emo::ji("butterfly")`
 ---
 ### Using mutate to create new columns
+
 - the <span style="color:orange"> *mutate()* </span> function basically creates new columns
 
-- most commonly, we'll use <span style="color:orange"> *mutate()* </span> to create columns based on existing columns'
+- most commonly, we'll use <span style="color:orange"> *mutate()* </span> to create columns based on existing columns
 
 - in the simplest scenario, we can create columns from scratch equivalent to the <span style="color:orange"> *add_column()* </span> function
 
@@ -486,6 +487,7 @@ class: center, middle, inverse
 4) <span style="color:orange">full_join()</span>: retains everything
 
 - to explore these functions, let's get some additional data
+
 - the **wpp2019** package includes a dataset called "pop" with global population sizes by country
 
 ```{r, echo = TRUE}
@@ -505,16 +507,12 @@ pop.2020 <- pop %>%
          population = "2020") # rename 2020 to 'population' - numbers in columns are a bad idea
 head(pop.2020)
 
-
-# Solomons does not exist in the pop dataset, so it gives "NA" for population size
 fish.tibble.left.join <- fish.tibble %>% 
   left_join(pop.2020, by = "location") # use left_join() to merge pop.2020 into the fish.tibble
-fish.tibble.left.join
+fish.tibble.left.join # Solomons does not exist in the pop dataset, so it gives "NA" for population size
 
-# use inner_join() to join pop and fish.tibble datasets, only joining locations that match
-# Solomons is now excluded from the dataset
 fish.tibble.inner.join <- fish.tibble %>%
-  inner_join(pop.2020)
+  inner_join(pop.2020) # use inner_join() to join pop and fish.tibble datasets, only joining locations that match
 fish.tibble.inner.join
 ```
 ---
@@ -591,14 +589,14 @@ families <- data.frame("Families" = as.character(c("Acanthuridae", "Kyphosidae",
                        "Common" = as.character(c("surgeonfishes", "chubs", "parrotfishes", "rabbitfishes")))
 ```
 ---
-class: inverse
+class: inverse, center
 # Exercise 2.2 `r emo::ji("weight_lifting_woman")`
 
 ### a) Read in the 'coralreefherbivores.csv' dataset and obtain the mean bodydeph across  families
 
 ### b) Integrate the common names for each family into the dataset
 
-### c) Compile sl, bodydepth, snoutlength, and eyediameter into a single column called "morphometrics"
+### c) Compile the values for sl, bodydepth, snoutlength, and eyediameter into a single column called "measurement", with a variable called "category" as the key
 
 ### d) Reverse the previous action
 

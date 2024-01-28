@@ -75,7 +75,7 @@ class: center, top, inverse
 - functions are meant to be intuitive
 
 .pull-right[
-&lt;img src="images/tidy_concept.png" width="50%" /&gt;
+&lt;img src="images/tidy_concept.png" width="80%" /&gt;
 ]
 ---
 ## The dplyr/tidyverse package 🔧
@@ -167,7 +167,7 @@ v1
 ```
 
 ```
-## [1] 0.17887
+## [1] -0.20858
 ```
 ]
 
@@ -282,6 +282,8 @@ class: center, middle, inverse
 
 - the &lt;span style="color:orange"&gt; *select()* &lt;/span&gt; function allows you to keep columns in your dataset based on names, positions, or criteria
 
+- by using a - sign, you can de-select columns from your dataset
+
 
 ```r
 fish.tbl.select &lt;- fish.tibble %&gt;% # retain the columns blowfish and location
@@ -317,9 +319,7 @@ fish.tbl.select2
 ---
 ### Selecting using positions or criteria
 
-- by using a - sign, you can de-select columns from your dataset
-
-- you can also employ criteria for negative or positive selection using
+- you can also choose based on column positions or employ criteria for negative or positive selection
 
 
 ```r
@@ -359,9 +359,10 @@ class: center, middle, inverse
 # 🐛  🦋
 ---
 ### Using mutate to create new columns
+
 - the &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; function basically creates new columns
 
-- most commonly, we'll use &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; to create columns based on existing columns'
+- most commonly, we'll use &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; to create columns based on existing columns
 
 - in the simplest scenario, we can create columns from scratch equivalent to the &lt;span style="color:orange"&gt; *add_column()* &lt;/span&gt; function
 
@@ -864,6 +865,7 @@ class: center, middle, inverse
 4) &lt;span style="color:orange"&gt;full_join()&lt;/span&gt;: retains everything
 
 - to explore these functions, let's get some additional data
+
 - the **wpp2019** package includes a dataset called "pop" with global population sizes by country
 
 
@@ -918,10 +920,9 @@ head(pop.2020)
 ```
 
 ```r
-# Solomons does not exist in the pop dataset, so it gives "NA" for population size
 fish.tibble.left.join &lt;- fish.tibble %&gt;% 
   left_join(pop.2020, by = "location") # use left_join() to merge pop.2020 into the fish.tibble
-fish.tibble.left.join
+fish.tibble.left.join # Solomons does not exist in the pop dataset, so it gives "NA" for population size
 ```
 
 ```
@@ -935,10 +936,8 @@ fish.tibble.left.join
 ```
 
 ```r
-# use inner_join() to join pop and fish.tibble datasets, only joining locations that match
-# Solomons is now excluded from the dataset
 fish.tibble.inner.join &lt;- fish.tibble %&gt;%
-  inner_join(pop.2020)
+  inner_join(pop.2020) # use inner_join() to join pop and fish.tibble datasets, only joining locations that match
 ```
 
 ```
@@ -1085,14 +1084,14 @@ families &lt;- data.frame("Families" = as.character(c("Acanthuridae", "Kyphosida
                        "Common" = as.character(c("surgeonfishes", "chubs", "parrotfishes", "rabbitfishes")))
 ```
 ---
-class: inverse
+class: inverse, center
 # Exercise 2.2 🏋️‍♀️
 
 ### a) Read in the 'coralreefherbivores.csv' dataset and obtain the mean bodydeph across  families
 
 ### b) Integrate the common names for each family into the dataset
 
-### c) Compile sl, bodydepth, snoutlength, and eyediameter into a single column called "morphometrics"
+### c) Compile the values for sl, bodydepth, snoutlength, and eyediameter into a single column called "measurement", with a variable called "category" as the key
 
 ### d) Reverse the previous action
 
