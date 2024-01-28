@@ -60,6 +60,7 @@ class: center, top, inverse
 # The tidyverse 💫
 
 - the tidyverse contains a vast number of functions to process data
+
 - concept by Hadley Wickham: intuitive, simple way to do data science
 
 &lt;img src="images/tidyverse.png" width="100%" /&gt;
@@ -68,10 +69,14 @@ class: center, top, inverse
 ## What is tidy data? 🧹
 
 - data that is easy to transform, visualize, and model
+
 - variables are always columns, rows are always data
+
 - functions are meant to be intuitive
 
+.pull-right[
 &lt;img src="images/tidy_concept.png" width="50%" /&gt;
+]
 ---
 ## The dplyr/tidyverse package 🔧
 
@@ -82,9 +87,43 @@ class: center, top, inverse
 
 
 ```r
-#install.packages("dplyr")
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(tidyverse)
+```
+
+```
+## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ forcats   1.0.0     ✔ readr     2.1.4
+## ✔ ggplot2   3.4.4     ✔ stringr   1.5.1
+## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
+## ✔ purrr     1.0.2     ✔ tidyr     1.3.0
+```
+
+```
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
 ```
 ]
 
@@ -128,7 +167,7 @@ v1
 ```
 
 ```
-## [1] -0.0338426
+## [1] 0.17887
 ```
 ]
 
@@ -240,6 +279,7 @@ class: center, middle, inverse
 # ☑️
 ---
 ### Basic selecting (for or against)
+
 - the &lt;span style="color:orange"&gt; *select()* &lt;/span&gt; function allows you to keep columns in your dataset based on names, positions, or criteria
 
 
@@ -278,6 +318,7 @@ fish.tbl.select2
 ### Selecting using positions or criteria
 
 - by using a - sign, you can de-select columns from your dataset
+
 - you can also employ criteria for negative or positive selection using
 
 
@@ -319,7 +360,9 @@ class: center, middle, inverse
 ---
 ### Using mutate to create new columns
 - the &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; function basically creates new columns
+
 - most commonly, we'll use &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; to create columns based on existing columns'
+
 - in the simplest scenario, we can create columns from scratch equivalent to the &lt;span style="color:orange"&gt; *add_column()* &lt;/span&gt; function
 
 
@@ -376,13 +419,20 @@ fish.tbl.mutate3
 ```
 
 ```
-##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type
-## 1        Australia continental        3        7          4        0        14        Australia.continental
-## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental
-## 3      Philippines continental        5        8          1        4        18      Philippines.continental
-## 4             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic
-## 5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic
-## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental
+##           location        type bluefish blowfish yellowfish greyfish totalfish
+## 1        Australia continental        3        7          4        0        14
+## 2        Indonesia continental        7        2          7        2        18
+## 3      Philippines continental        5        8          1        4        18
+## 4             Fiji     oceanic        5        4          6        6        21
+## 5         Solomons     oceanic        3        4          6        8        21
+## 6 Papua New Guinea continental        6        3          9       10        28
+##                       loc_type
+## 1        Australia.continental
+## 2        Indonesia.continental
+## 3      Philippines.continental
+## 4                 Fiji.oceanic
+## 5             Solomons.oceanic
+## 6 Papua New Guinea.continental
 ```
 - hint: check out the &lt;span style="color:orange"&gt; *unite()* &lt;/span&gt; function
 ---
@@ -398,13 +448,20 @@ fish.tbl.mutate4
 ```
 
 ```
-##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type type.recode
-## 1        Australia continental        3        7          4        0        14        Australia.continental     coastal
-## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental     coastal
-## 3      Philippines continental        5        8          1        4        18      Philippines.continental     coastal
-## 4             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic     oceanic
-## 5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic     oceanic
-## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental     coastal
+##           location        type bluefish blowfish yellowfish greyfish totalfish
+## 1        Australia continental        3        7          4        0        14
+## 2        Indonesia continental        7        2          7        2        18
+## 3      Philippines continental        5        8          1        4        18
+## 4             Fiji     oceanic        5        4          6        6        21
+## 5         Solomons     oceanic        3        4          6        8        21
+## 6 Papua New Guinea continental        6        3          9       10        28
+##                       loc_type type.recode
+## 1        Australia.continental     coastal
+## 2        Indonesia.continental     coastal
+## 3      Philippines.continental     coastal
+## 4                 Fiji.oceanic     oceanic
+## 5             Solomons.oceanic     oceanic
+## 6 Papua New Guinea.continental     coastal
 ```
 
 ```r
@@ -414,13 +471,20 @@ new.fish.tbl
 ```
 
 ```
-##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type log_totalfish
-## 1        Australia continental        3        7          4        0        14        Australia.continental      2.639057
-## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental      2.890372
-## 3      Philippines continental        5        8          1        4        18      Philippines.continental      2.890372
-## 4             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic      3.044522
-## 5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic      3.044522
-## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental      3.332205
+##           location        type bluefish blowfish yellowfish greyfish totalfish
+## 1        Australia continental        3        7          4        0        14
+## 2        Indonesia continental        7        2          7        2        18
+## 3      Philippines continental        5        8          1        4        18
+## 4             Fiji     oceanic        5        4          6        6        21
+## 5         Solomons     oceanic        3        4          6        8        21
+## 6 Papua New Guinea continental        6        3          9       10        28
+##                       loc_type log_totalfish
+## 1        Australia.continental      2.639057
+## 2        Indonesia.continental      2.890372
+## 3      Philippines.continental      2.890372
+## 4                 Fiji.oceanic      3.044522
+## 5             Solomons.oceanic      3.044522
+## 6 Papua New Guinea.continental      3.332205
 ```
 ---
 class: center, middle, inverse
@@ -478,6 +542,7 @@ class: middle, center, inverse
 ### Arranging columns
 
 - the &lt;span style="color:orange"&gt;arrange()&lt;/span&gt; function takes the place of the sort function from base R
+
 - NAs will always go to the bottom of the column
 
 
@@ -488,13 +553,20 @@ fish.tbl.order
 ```
 
 ```
-##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type log_totalfish
-## 1        Australia continental        3        7          4        0        14        Australia.continental      2.639057
-## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental      2.890372
-## 3      Philippines continental        5        8          1        4        18      Philippines.continental      2.890372
-## 4 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental      3.332205
-## 5             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic      3.044522
-## 6         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic      3.044522
+##           location        type bluefish blowfish yellowfish greyfish totalfish
+## 1        Australia continental        3        7          4        0        14
+## 2        Indonesia continental        7        2          7        2        18
+## 3      Philippines continental        5        8          1        4        18
+## 4 Papua New Guinea continental        6        3          9       10        28
+## 5             Fiji     oceanic        5        4          6        6        21
+## 6         Solomons     oceanic        3        4          6        8        21
+##                       loc_type log_totalfish
+## 1        Australia.continental      2.639057
+## 2        Indonesia.continental      2.890372
+## 3      Philippines.continental      2.890372
+## 4 Papua New Guinea.continental      3.332205
+## 5                 Fiji.oceanic      3.044522
+## 6             Solomons.oceanic      3.044522
 ```
 
 ```r
@@ -504,13 +576,20 @@ fish.tbl.order.total
 ```
 
 ```
-##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type log_totalfish
-## 1 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental      3.332205
-## 2             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic      3.044522
-## 3         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic      3.044522
-## 4        Indonesia continental        7        2          7        2        18        Indonesia.continental      2.890372
-## 5      Philippines continental        5        8          1        4        18      Philippines.continental      2.890372
-## 6        Australia continental        3        7          4        0        14        Australia.continental      2.639057
+##           location        type bluefish blowfish yellowfish greyfish totalfish
+## 1 Papua New Guinea continental        6        3          9       10        28
+## 2             Fiji     oceanic        5        4          6        6        21
+## 3         Solomons     oceanic        3        4          6        8        21
+## 4        Indonesia continental        7        2          7        2        18
+## 5      Philippines continental        5        8          1        4        18
+## 6        Australia continental        3        7          4        0        14
+##                       loc_type log_totalfish
+## 1 Papua New Guinea.continental      3.332205
+## 2                 Fiji.oceanic      3.044522
+## 3             Solomons.oceanic      3.044522
+## 4        Indonesia.continental      2.890372
+## 5      Philippines.continental      2.890372
+## 6        Australia.continental      2.639057
 ```
 
 ```r
@@ -522,20 +601,20 @@ fish.tbl.order.NA
 ```
 
 ```
-##   na.fish         location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type
-## 1       1        Australia continental        3        7          4        0        14        Australia.continental
-## 2       2        Indonesia continental        7        2          7        2        18        Indonesia.continental
-## 3       3      Philippines continental        5        8          1        4        18      Philippines.continental
-## 4       5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic
-## 5       6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental
-## 6      NA             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic
-##   log_totalfish
-## 1      2.639057
-## 2      2.890372
-## 3      2.890372
-## 4      3.044522
-## 5      3.332205
-## 6      3.044522
+##   na.fish         location        type bluefish blowfish yellowfish greyfish
+## 1       1        Australia continental        3        7          4        0
+## 2       2        Indonesia continental        7        2          7        2
+## 3       3      Philippines continental        5        8          1        4
+## 4       5         Solomons     oceanic        3        4          6        8
+## 5       6 Papua New Guinea continental        6        3          9       10
+## 6      NA             Fiji     oceanic        5        4          6        6
+##   totalfish                     loc_type log_totalfish
+## 1        14        Australia.continental      2.639057
+## 2        18        Indonesia.continental      2.890372
+## 3        18      Philippines.continental      2.890372
+## 4        21             Solomons.oceanic      3.044522
+## 5        28 Papua New Guinea.continental      3.332205
+## 6        21                 Fiji.oceanic      3.044522
 ```
 ---
 class: inverse, center, top
@@ -682,6 +761,7 @@ class: center, middle, inverse
 ### Grouping rows by factor levels
 
 - the &lt;span style="color:orange"&gt; group_by()&lt;/span&gt; creates an internal group structure
+
 - groupings are now indicated for tibbles
 
 
@@ -694,14 +774,15 @@ fish.tbl.grouped # dataset looks the same, but it will behave differently due to
 ```
 ## # A tibble: 6 × 9
 ## # Groups:   type [2]
-##   location         type        bluefish blowfish yellowfish greyfish totalfish loc_type                     log_totalfish
-##   &lt;chr&gt;            &lt;chr&gt;          &lt;int&gt;    &lt;int&gt;      &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;                                &lt;dbl&gt;
-## 1 Australia        continental        3        7          4        0        14 Australia.continental                 2.64
-## 2 Indonesia        continental        7        2          7        2        18 Indonesia.continental                 2.89
-## 3 Philippines      continental        5        8          1        4        18 Philippines.continental               2.89
-## 4 Fiji             oceanic            5        4          6        6        21 Fiji.oceanic                          3.04
-## 5 Solomons         oceanic            3        4          6        8        21 Solomons.oceanic                      3.04
-## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental          3.33
+##   location        type  bluefish blowfish yellowfish greyfish totalfish loc_type
+##   &lt;chr&gt;           &lt;chr&gt;    &lt;int&gt;    &lt;int&gt;      &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;   
+## 1 Australia       cont…        3        7          4        0        14 Austral…
+## 2 Indonesia       cont…        7        2          7        2        18 Indones…
+## 3 Philippines     cont…        5        8          1        4        18 Philipp…
+## 4 Fiji            ocea…        5        4          6        6        21 Fiji.oc…
+## 5 Solomons        ocea…        3        4          6        8        21 Solomon…
+## 6 Papua New Guin… cont…        6        3          9       10        28 Papua N…
+## # ℹ 1 more variable: log_totalfish &lt;dbl&gt;
 ```
 
 ```r
@@ -721,6 +802,7 @@ fish.tbl.sum
 ### Advanced grouping and ungrouping
 
 - we can group by multiple arguments
+
 - grouping creates a legacy that can mess things up downstream, which we can resolve using &lt;span style="color:orange"&gt; ungroup()&lt;/span&gt;
 
 
@@ -732,7 +814,8 @@ fish.tbl.sum2 &lt;- new.fish.tbl %&gt;%
 ```
 
 ```
-## `summarise()` has grouped output by 'region'. You can override using the `.groups` argument.
+## `summarise()` has grouped output by 'region'. You can override using the
+## `.groups` argument.
 ```
 
 ```r
@@ -990,9 +1073,9 @@ fish.spread.case
 ## 5      Philippines 109581.085        8        5          1    high
 ```
 ---
-class: inverse, center, top
-
-# Exercise 2.2 🏋️‍♀️
+background-image: url("images/slineatus_2.jpg")
+background-size: cover
+class: left, top
 
 ### Create the following vector:
 
@@ -1001,6 +1084,9 @@ class: inverse, center, top
 families &lt;- data.frame("Families" = as.character(c("Acanthuridae", "Kyphosidae", "Labridae", "Siganidae")),
                        "Common" = as.character(c("surgeonfishes", "chubs", "parrotfishes", "rabbitfishes")))
 ```
+---
+class: inverse
+# Exercise 2.2 🏋️‍♀️
 
 ### a) Read in the 'coralreefherbivores.csv' dataset and obtain the mean bodydeph across  families
 
@@ -1015,7 +1101,7 @@ families &lt;- data.frame("Families" = as.character(c("Acanthuridae", "Kyphosida
 class: center, top
 # Solution 2.2a 🤓
 
-## a) Obtain the mean bodydeph across different families
+### a) Obtain the mean bodydeph across different families
 
 ```r
 herbs &lt;- read.csv(file = "data/coralreefherbivores.csv")
@@ -1038,7 +1124,7 @@ head(a)
 class: center, top
 # Solution 2.2b 🤓
 
-## b) Integrate the common names for each family into the dataset
+### b) Integrate the common names for each family into the dataset
 
 ```r
 b &lt;- families %&gt;%
@@ -1055,26 +1141,33 @@ head(b)
 ```
 
 ```
-##         family        Common      genus        species                   gen.spe       sl bodydepth snoutlength
-## 1 Acanthuridae surgeonfishes Acanthurus       achilles       Acanthurus.achilles 163.6667 0.5543625   0.4877797
-## 2 Acanthuridae surgeonfishes Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300 0.4405350   0.4402623
-## 3 Acanthuridae surgeonfishes Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000 0.4726556   0.5386490
-## 4 Acanthuridae surgeonfishes Acanthurus        blochii        Acanthurus.blochii  82.9000 0.5586486   0.4782217
-## 5 Acanthuridae surgeonfishes Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033 0.5457248   0.5661867
-## 6 Acanthuridae surgeonfishes Acanthurus        fowleri        Acanthurus.fowleri 266.0000 0.4669521   0.5950563
-##   eyediameter size    schooling
-## 1   0.3507191    S     Solitary
-## 2   0.2560593    M  SmallGroups
-## 3   0.2451253    M MediumGroups
-## 4   0.3196155    M  SmallGroups
-## 5   0.2807218    L     Solitary
-## 6   0.2217376    M     Solitary
+##         family        Common      genus        species
+## 1 Acanthuridae surgeonfishes Acanthurus       achilles
+## 2 Acanthuridae surgeonfishes Acanthurus albipectoralis
+## 3 Acanthuridae surgeonfishes Acanthurus   auranticavus
+## 4 Acanthuridae surgeonfishes Acanthurus        blochii
+## 5 Acanthuridae surgeonfishes Acanthurus     dussumieri
+## 6 Acanthuridae surgeonfishes Acanthurus        fowleri
+##                     gen.spe       sl bodydepth snoutlength eyediameter size
+## 1       Acanthurus.achilles 163.6667 0.5543625   0.4877797   0.3507191    S
+## 2 Acanthurus.albipectoralis 212.7300 0.4405350   0.4402623   0.2560593    M
+## 3   Acanthurus.auranticavus 216.0000 0.4726556   0.5386490   0.2451253    M
+## 4        Acanthurus.blochii  82.9000 0.5586486   0.4782217   0.3196155    M
+## 5     Acanthurus.dussumieri 193.7033 0.5457248   0.5661867   0.2807218    L
+## 6        Acanthurus.fowleri 266.0000 0.4669521   0.5950563   0.2217376    M
+##      schooling
+## 1     Solitary
+## 2  SmallGroups
+## 3 MediumGroups
+## 4  SmallGroups
+## 5     Solitary
+## 6     Solitary
 ```
 ---
 class: center, top
 # Solution 2.2c 🤓
 
-## c) Compile the values for sl, bodydepth, snoutlength, and eyediameter into a single column called "measurement", with a variable called "category" as the key
+### c) Compile the values for sl, bodydepth, snoutlength, and eyediameter into a single column called "measurement", with a variable called "category" as the key
 
 ```r
 c &lt;- herbs %&gt;%
@@ -1083,19 +1176,26 @@ head(c)
 ```
 
 ```
-##         family      genus        species                   gen.spe size    schooling category measurement
-## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles    S     Solitary       sl    163.6667
-## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis    M  SmallGroups       sl    212.7300
-## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus    M MediumGroups       sl    216.0000
-## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii    M  SmallGroups       sl     82.9000
-## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri    L     Solitary       sl    193.7033
-## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri    M     Solitary       sl    266.0000
+##         family      genus        species                   gen.spe size
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles    S
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis    M
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus    M
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii    M
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri    L
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri    M
+##      schooling category measurement
+## 1     Solitary       sl    163.6667
+## 2  SmallGroups       sl    212.7300
+## 3 MediumGroups       sl    216.0000
+## 4  SmallGroups       sl     82.9000
+## 5     Solitary       sl    193.7033
+## 6     Solitary       sl    266.0000
 ```
 ---
 class: center, top
 # Solution 2.2d 🤓
 
-## d) Reverse the previous action
+### d) Reverse the previous action
 
 ```r
 d &lt;- c %&gt;%
@@ -1104,26 +1204,26 @@ head(d)
 ```
 
 ```
-##         family      genus        species                   gen.spe size    schooling bodydepth eyediameter       sl
-## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles    S     Solitary 0.5543625   0.3507191 163.6667
-## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis    M  SmallGroups 0.4405350   0.2560593 212.7300
-## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus    M MediumGroups 0.4726556   0.2451253 216.0000
-## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii    M  SmallGroups 0.5586486   0.3196155  82.9000
-## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri    L     Solitary 0.5457248   0.2807218 193.7033
-## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri    M     Solitary 0.4669521   0.2217376 266.0000
-##   snoutlength
-## 1   0.4877797
-## 2   0.4402623
-## 3   0.5386490
-## 4   0.4782217
-## 5   0.5661867
-## 6   0.5950563
+##         family      genus        species                   gen.spe size
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles    S
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis    M
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus    M
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii    M
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri    L
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri    M
+##      schooling bodydepth eyediameter       sl snoutlength
+## 1     Solitary 0.5543625   0.3507191 163.6667   0.4877797
+## 2  SmallGroups 0.4405350   0.2560593 212.7300   0.4402623
+## 3 MediumGroups 0.4726556   0.2451253 216.0000   0.5386490
+## 4  SmallGroups 0.5586486   0.3196155  82.9000   0.4782217
+## 5     Solitary 0.5457248   0.2807218 193.7033   0.5661867
+## 6     Solitary 0.4669521   0.2217376 266.0000   0.5950563
 ```
 ---
 class: center, top
 # Solution 2.2e 🤓
 
-## e) Create a new column called "googly_eyed" based on eyediameter
+### e) Create a new column called "googly_eyed" based on eyediameter
 
 ```r
 e &lt;- herbs %&gt;%
@@ -1133,25 +1233,25 @@ head(e)
 ```
 
 ```
-##         family      genus        species                   gen.spe       sl bodydepth snoutlength eyediameter size
-## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles 163.6667 0.5543625   0.4877797   0.3507191    S
-## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300 0.4405350   0.4402623   0.2560593    M
-## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000 0.4726556   0.5386490   0.2451253    M
-## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii  82.9000 0.5586486   0.4782217   0.3196155    M
-## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033 0.5457248   0.5661867   0.2807218    L
-## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri 266.0000 0.4669521   0.5950563   0.2217376    M
-##      schooling googly_eyed
-## 1     Solitary      googly
-## 2  SmallGroups   notgoogly
-## 3 MediumGroups   notgoogly
-## 4  SmallGroups      googly
-## 5     Solitary   notgoogly
-## 6     Solitary   notgoogly
+##         family      genus        species                   gen.spe       sl
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles 163.6667
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii  82.9000
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri 266.0000
+##   bodydepth snoutlength eyediameter size    schooling googly_eyed
+## 1 0.5543625   0.4877797   0.3507191    S     Solitary      googly
+## 2 0.4405350   0.4402623   0.2560593    M  SmallGroups   notgoogly
+## 3 0.4726556   0.5386490   0.2451253    M MediumGroups   notgoogly
+## 4 0.5586486   0.4782217   0.3196155    M  SmallGroups      googly
+## 5 0.5457248   0.5661867   0.2807218    L     Solitary   notgoogly
+## 6 0.4669521   0.5950563   0.2217376    M     Solitary   notgoogly
 ```
 ---
-background-image: url("images/slineatus_2.jpg")
+background-image: url("images/ggplot_hive.jpg")
 background-size: cover
-class: center, top, inverse
+class: center, top, inverseclass: inverse, center, top
 ---
 class: center, middle
 # The end

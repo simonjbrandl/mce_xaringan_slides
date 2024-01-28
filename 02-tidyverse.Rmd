@@ -68,6 +68,7 @@ style_duo_accent_inverse(code_highlight_color = "#cc5500",
 # The tidyverse `r emo::ji("dizzy")`
 
 - the tidyverse contains a vast number of functions to process data
+
 - concept by Hadley Wickham: intuitive, simple way to do data science
 
 ```{r echo=FALSE, out.width="100%"}
@@ -78,12 +79,16 @@ knitr::include_graphics("images/tidyverse.png")
 ## What is tidy data? `r emo::ji("broom")`
 
 - data that is easy to transform, visualize, and model
+
 - variables are always columns, rows are always data
+
 - functions are meant to be intuitive
 
+.pull-right[
 ```{r echo=FALSE, out.width="50%"}
 knitr::include_graphics("images/tidy_concept.png")
 ```
+]
 ---
 ## The dplyr/tidyverse package `r emo::ji("wrench")`
 
@@ -92,8 +97,7 @@ knitr::include_graphics("images/tidy_concept.png")
 
 - the **dplyr** package is part of the **tidyverse** package, which includes several other packages
 
-```{r, echo = TRUE, results='hide'}
-#install.packages("dplyr")
+```{r, echo = T, warning=FALSE, results='hide'}
 library(dplyr)
 library(tidyverse)
 ```
@@ -199,6 +203,7 @@ class: center, middle, inverse
 # `r emo::ji("ballot_box_with_check")`
 ---
 ### Basic selecting (for or against)
+
 - the <span style="color:orange"> *select()* </span> function allows you to keep columns in your dataset based on names, positions, or criteria
 
 ```{r, echo = TRUE}
@@ -214,6 +219,7 @@ fish.tbl.select2
 ### Selecting using positions or criteria
 
 - by using a - sign, you can de-select columns from your dataset
+
 - you can also employ criteria for negative or positive selection using
 
 ```{r, echo = TRUE}
@@ -232,7 +238,9 @@ class: center, middle, inverse
 ---
 ### Using mutate to create new columns
 - the <span style="color:orange"> *mutate()* </span> function basically creates new columns
+
 - most commonly, we'll use <span style="color:orange"> *mutate()* </span> to create columns based on existing columns'
+
 - in the simplest scenario, we can create columns from scratch equivalent to the <span style="color:orange"> *add_column()* </span> function
 
 ```{r, echo = TRUE}
@@ -313,6 +321,7 @@ class: middle, center, inverse
 ### Arranging columns
 
 - the <span style="color:orange">arrange()</span> function takes the place of the sort function from base R
+
 - NAs will always go to the bottom of the column
 
 ```{r, echo = TRUE}
@@ -428,6 +437,7 @@ class: center, middle, inverse
 ### Grouping rows by factor levels
 
 - the <span style="color:orange"> group_by()</span> creates an internal group structure
+
 - groupings are now indicated for tibbles
 
 ```{r, echo = TRUE}
@@ -443,6 +453,7 @@ fish.tbl.sum
 ### Advanced grouping and ungrouping
 
 - we can group by multiple arguments
+
 - grouping creates a legacy that can mess things up downstream, which we can resolve using <span style="color:orange"> ungroup()</span>
 
 ```{r, echo = TRUE}
@@ -569,9 +580,9 @@ fish.spread.case <- fish.spread %>%
 fish.spread.case
 ```
 ---
-class: inverse, center, top
-
-# Exercise 2.2 `r emo::ji("weight_lifting_woman")`
+background-image: url("images/slineatus_2.jpg")
+background-size: cover
+class: left, top
 
 ### Create the following vector:
 
@@ -579,6 +590,9 @@ class: inverse, center, top
 families <- data.frame("Families" = as.character(c("Acanthuridae", "Kyphosidae", "Labridae", "Siganidae")),
                        "Common" = as.character(c("surgeonfishes", "chubs", "parrotfishes", "rabbitfishes")))
 ```
+---
+class: inverse
+# Exercise 2.2 `r emo::ji("weight_lifting_woman")`
 
 ### a) Read in the 'coralreefherbivores.csv' dataset and obtain the mean bodydeph across  families
 
@@ -593,7 +607,7 @@ families <- data.frame("Families" = as.character(c("Acanthuridae", "Kyphosidae",
 class: center, top
 # Solution 2.2a `r emo::ji("nerd_face")`
 
-## a) Obtain the mean bodydeph across different families
+### a) Obtain the mean bodydeph across different families
 ```{r, echo = TRUE, error = TRUE}
 herbs <- read.csv(file = "data/coralreefherbivores.csv")
 a <- herbs %>%
@@ -605,7 +619,7 @@ head(a)
 class: center, top
 # Solution 2.2b `r emo::ji("nerd_face")`
 
-## b) Integrate the common names for each family into the dataset
+### b) Integrate the common names for each family into the dataset
 ```{r, echo = TRUE, error = TRUE}
 b <- families %>%
   rename(family = "Families") %>%
@@ -616,7 +630,7 @@ head(b)
 class: center, top
 # Solution 2.2c `r emo::ji("nerd_face")`
 
-## c) Compile the values for sl, bodydepth, snoutlength, and eyediameter into a single column called "measurement", with a variable called "category" as the key
+### c) Compile the values for sl, bodydepth, snoutlength, and eyediameter into a single column called "measurement", with a variable called "category" as the key
 ```{r, echo = TRUE, error = TRUE}
 c <- herbs %>%
   gather(5:8, key = "category", value = "measurement")
@@ -626,7 +640,7 @@ head(c)
 class: center, top
 # Solution 2.2d `r emo::ji("nerd_face")`
 
-## d) Reverse the previous action
+### d) Reverse the previous action
 ```{r, echo = TRUE}
 d <- c %>%
   spread(key = "category", value = "measurement")
@@ -636,7 +650,7 @@ head(d)
 class: center, top
 # Solution 2.2e `r emo::ji("nerd_face")`
 
-## e) Create a new column called "googly_eyed" based on eyediameter
+### e) Create a new column called "googly_eyed" based on eyediameter
 ```{r, echo = TRUE}
 e <- herbs %>%
   mutate(googly_eyed = case_when(eyediameter >= 0.3 ~ "googly",
@@ -644,9 +658,9 @@ e <- herbs %>%
 head(e)
 ```
 ---
-background-image: url("images/slineatus_2.jpg")
+background-image: url("images/ggplot_hive.jpg")
 background-size: cover
-class: center, top, inverse
+class: center, top, inverseclass: inverse, center, top
 ---
 class: center, middle
 # The end
