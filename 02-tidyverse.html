@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Marine Community Ecology 2024</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Simon J. Brandl" />
+    <script src="libs/header-attrs-2.25/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Marine Community Ecology 2024
+]
+.subtitle[
+## 02-Entering the tidyverse
+]
+.author[
+### Simon J. Brandl
+]
+.institute[
+### The University of Texas at Austin
+]
+.date[
+### 2024/01/01 (updated: 2024-01-28)
+]
+
+---
+
+
+background-image: url("images/IMG_2100.jpg")
+background-size: cover
+class: center, top, inverse
+
+# Data wrangling using dplyr and the tidyverse
+
+
+
+&lt;style type="text/css"&gt;
+
+.scrollable {
+  height: 300px;
+  overflow-y: auto;
+}
+
+
+.scrollable-auto {
+  height: 75%;
+  overflow-y: auto;
+}
+
+.remark-slide-scaler {
+    overflow-y: auto;
+}
+&lt;/style&gt;
+
+---
+# The tidyverse 💫
+
+- the tidyverse contains a vast number of functions to process data
+- concept by Hadley Wickham: intuitive, simple way to do data science
+
+&lt;img src="images/tidyverse.png" width="100%" /&gt;
+
+---
+## What is tidy data? 🧹
+
+- data that is easy to transform, visualize, and model
+- variables are always columns, rows are always data
+- functions are meant to be intuitive
+
+&lt;img src="images/tidy_concept.png" width="50%" /&gt;
+---
+## The dplyr/tidyverse package 🔧
+
+.pull-left[
+- the core package for tidy data processing is the **dplyr** package
+
+- the **dplyr** package is part of the **tidyverse** package, which includes several other packages
+
+
+```r
+#install.packages("dplyr")
+library(dplyr)
+library(tidyverse)
+```
+]
+
+.pull-right[
+&lt;img src="images/hex-dplyr.jpeg" width="75%" /&gt;
+]
+
+---
+
+class: center, middle
+
+## Five workhorse functions 🐴
+
+**1) &lt;span style="color:orange"&gt; filter()&lt;/span&gt;: keep/remove rows based on criteria**
+
+**2) &lt;span style="color:orange"&gt; select()&lt;/span&gt;: keep/remove columns by name/number/sequence**
+
+**3) &lt;span style="color:orange"&gt; mutate()&lt;/span&gt;: add new variables**
+
+**4) &lt;span style="color:orange"&gt; summarize()&lt;/span&gt;: reduce variables to summarized values**
+
+**5) &lt;span style="color:orange"&gt; arrange()&lt;/span&gt;: reorder rows**
+
+## ✂️ 🔨 🧲 🗜 🔩
+---
+
+## Pipes
+
+.pull-left[
+- pipes are a special type operator, implemented using &lt;span style="color:orange"&gt;**%&gt;%**&lt;/span&gt;
+
+- pipes allow you to construct a sequence of actions with the same dataset
+
+- for example, we can create a vector and take its mean 
+
+
+```r
+v1 &lt;- rnorm(1000, 0, 5) %&gt;% # creating a vector using rnorm() and piping it
+  mean() # taking the mean
+v1
+```
+
+```
+## [1] -0.0338426
+```
+]
+
+.pull-right[
+&lt;img src="images/lotr_pipe.jpg" width="80%" /&gt;
+]
+---
+## Preparation
+
+- we'll start by reading in our fish.tibble that we created previously 
+
+- the .csv file should be in your data directory - if not, you can download it [here](https://simonjbrandl.github.io/marinecommunityecology/2-tidyverse.html)
+
+
+```r
+fish.tibble &lt;- read.csv(file = "data/fishtibble.csv") 
+fish.tibble
+```
+
+```
+##   bluefish blowfish yellowfish         location
+## 1        3        7          4        Australia
+## 2        7        2          7        Indonesia
+## 3        5        8          1      Philippines
+## 4        5        4          6             Fiji
+## 5        3        4          6         Solomons
+## 6        6        3          9 Papua New Guinea
+```
+---
+class: center, middle, inverse
+# Filter
+# 🧲
+---
+### Basic filtering
+
+- The &lt;span style="color:orange"&gt; *filter()* &lt;/span&gt; function let's you select or remove rows based on characters or values
+
+
+```r
+fish.tbl.filtered &lt;- fish.tibble %&gt;% # create a new object from fish.tibble and pipe it
+  filter(location == "Australia") # filter rows for Australia
+fish.tbl.filtered
+```
+
+```
+##   bluefish blowfish yellowfish  location
+## 1        3        7          4 Australia
+```
+
+```r
+fish.tbl.filtered2 &lt;- fish.tibble %&gt;%
+  filter(location == c("Australia", "Indonesia")) # use multiple criteria using c()
+fish.tbl.filtered2
+```
+
+```
+##   bluefish blowfish yellowfish  location
+## 1        3        7          4 Australia
+## 2        7        2          7 Indonesia
+```
+
+```r
+fish.tbl.filtered3 &lt;- fish.tibble %&gt;%
+  filter(blowfish &gt; 3) # filter by values greater than 5 in the blowfish column
+fish.tbl.filtered3
+```
+
+```
+##   bluefish blowfish yellowfish    location
+## 1        3        7          4   Australia
+## 2        5        8          1 Philippines
+## 3        5        4          6        Fiji
+## 4        3        4          6    Solomons
+```
+---
+### Advanced filtering
+
+- we can apply the same logical expressions we learned previously
+
+
+```r
+fish.tbl.filtered4 &lt;- fish.tibble %&gt;%
+  filter(yellowfish &gt; 3 &amp; yellowfish &lt; 7) # filter by values greater than three and smaller than 8
+fish.tbl.filtered4
+```
+
+```
+##   bluefish blowfish yellowfish  location
+## 1        3        7          4 Australia
+## 2        5        4          6      Fiji
+## 3        3        4          6  Solomons
+```
+
+```r
+# filter across multiple columns, numeric, character, and c()
+fish.tbl.filtered5 &lt;- fish.tibble %&gt;%
+  filter(bluefish &gt; 5 &amp; location != c("Fiji", "Australia")) 
+fish.tbl.filtered5
+```
+
+```
+##   bluefish blowfish yellowfish         location
+## 1        7        2          7        Indonesia
+## 2        6        3          9 Papua New Guinea
+```
+---
+class: center, middle, inverse
+# Select
+# ☑️
+---
+### Basic selecting (for or against)
+- the &lt;span style="color:orange"&gt; *select()* &lt;/span&gt; function allows you to keep columns in your dataset based on names, positions, or criteria
+
+
+```r
+fish.tbl.select &lt;- fish.tibble %&gt;% # retain the columns blowfish and location
+  select(blowfish, location)
+fish.tbl.select
+```
+
+```
+##   blowfish         location
+## 1        7        Australia
+## 2        2        Indonesia
+## 3        8      Philippines
+## 4        4             Fiji
+## 5        4         Solomons
+## 6        3 Papua New Guinea
+```
+
+```r
+fish.tbl.select2 &lt;- fish.tibble %&gt;%
+  select(-bluefish, -blowfish) # remove the bluefish and blowfish columns
+fish.tbl.select2
+```
+
+```
+##   yellowfish         location
+## 1          4        Australia
+## 2          7        Indonesia
+## 3          1      Philippines
+## 4          6             Fiji
+## 5          6         Solomons
+## 6          9 Papua New Guinea
+```
+---
+### Selecting using positions or criteria
+
+- by using a - sign, you can de-select columns from your dataset
+- you can also employ criteria for negative or positive selection using
+
+
+```r
+fish.tbl.select3 &lt;- fish.tibble %&gt;% # retain only the third and fourth column
+  select(3:4)
+fish.tbl.select3
+```
+
+```
+##   yellowfish         location
+## 1          4        Australia
+## 2          7        Indonesia
+## 3          1      Philippines
+## 4          6             Fiji
+## 5          6         Solomons
+## 6          9 Papua New Guinea
+```
+
+```r
+fish.tbl.select4 &lt;- fish.tibble %&gt;%
+  select(-ends_with("fish")) # remove all columns that end with fish
+fish.tbl.select4
+```
+
+```
+##           location
+## 1        Australia
+## 2        Indonesia
+## 3      Philippines
+## 4             Fiji
+## 5         Solomons
+## 6 Papua New Guinea
+```
+---
+class: center, middle, inverse
+# Mutate
+# 🐛  🦋
+---
+### Using mutate to create new columns
+- the &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; function basically creates new columns
+- most commonly, we'll use &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; to create columns based on existing columns'
+- in the simplest scenario, we can create columns from scratch equivalent to the &lt;span style="color:orange"&gt; *add_column()* &lt;/span&gt; function
+
+
+```r
+fish.tbl.mutate &lt;- fish.tibble %&gt;%
+  mutate(greyfish = c(0,2,4,6,8,10), # add another numeric column called greyfish 
+         type = c("continental", # and a categorical variable called type
+                  "continental", 
+                  "continental", 
+                  "oceanic", 
+                  "oceanic", 
+                  "continental"))
+fish.tbl.mutate
+```
+
+```
+##   bluefish blowfish yellowfish         location greyfish        type
+## 1        3        7          4        Australia        0 continental
+## 2        7        2          7        Indonesia        2 continental
+## 3        5        8          1      Philippines        4 continental
+## 4        5        4          6             Fiji        6     oceanic
+## 5        3        4          6         Solomons        8     oceanic
+## 6        6        3          9 Papua New Guinea       10 continental
+```
+- hint: you can use the &lt;span style="color:orange"&gt; *relocate()* &lt;/span&gt; function to tidy up your dataset
+
+---
+### Using mutate on existing columns
+
+- we can use &lt;span style="color:orange"&gt; *mutate()* &lt;/span&gt; for basic mathematical operations or combining columns
+
+
+```r
+fish.tbl.mutate2 &lt;- fish.tbl.mutate %&gt;%
+  mutate(totalfish = bluefish+blowfish+yellowfish+greyfish) %&gt;% # sum acrcoss fish species 
+  relocate(location, type) # relocate for tidyness
+fish.tbl.mutate2
+```
+
+```
+##           location        type bluefish blowfish yellowfish greyfish totalfish
+## 1        Australia continental        3        7          4        0        14
+## 2        Indonesia continental        7        2          7        2        18
+## 3      Philippines continental        5        8          1        4        18
+## 4             Fiji     oceanic        5        4          6        6        21
+## 5         Solomons     oceanic        3        4          6        8        21
+## 6 Papua New Guinea continental        6        3          9       10        28
+```
+
+```r
+fish.tbl.mutate3 &lt;- fish.tbl.mutate2 %&gt;%
+  mutate(loc_type = paste(location, type, sep = ".")) # combine the two character columns
+fish.tbl.mutate3
+```
+
+```
+##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type
+## 1        Australia continental        3        7          4        0        14        Australia.continental
+## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental
+## 3      Philippines continental        5        8          1        4        18      Philippines.continental
+## 4             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic
+## 5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic
+## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental
+```
+- hint: check out the &lt;span style="color:orange"&gt; *unite()* &lt;/span&gt; function
+---
+### Using mutate to replace and transform
+
+- you can use mutate to replace character strings or transform numbers
+
+
+```r
+fish.tbl.mutate4 &lt;- fish.tbl.mutate3 %&gt;%
+  mutate(type.recode = recode(type, continental = "coastal")) # use recode() within mutate to replace characters
+fish.tbl.mutate4
+```
+
+```
+##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type type.recode
+## 1        Australia continental        3        7          4        0        14        Australia.continental     coastal
+## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental     coastal
+## 3      Philippines continental        5        8          1        4        18      Philippines.continental     coastal
+## 4             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic     oceanic
+## 5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic     oceanic
+## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental     coastal
+```
+
+```r
+new.fish.tbl &lt;- fish.tbl.mutate3 %&gt;%
+  mutate(log_totalfish = log(totalfish)) # create a column with the log of totalfish
+new.fish.tbl
+```
+
+```
+##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type log_totalfish
+## 1        Australia continental        3        7          4        0        14        Australia.continental      2.639057
+## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental      2.890372
+## 3      Philippines continental        5        8          1        4        18      Philippines.continental      2.890372
+## 4             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic      3.044522
+## 5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic      3.044522
+## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental      3.332205
+```
+---
+class: center, middle, inverse
+# Summarize
+# 📝
+---
+### Summarizing across rows 
+
+- the &lt;span style="color:orange"&gt; *summarize()* &lt;/span&gt; function turns many row values into one by performing some kind of mathematical operation
+
+```r
+sum.blowfish &lt;- new.fish.tbl %&gt;% 
+  summarize(mean.blowfish = mean(blowfish), # get the mean, sd, min and max
+            sd.blowfish = sd(blowfish), 
+            min.blowfish = min(blowfish),
+            max.blowfish = max(blowfish))
+sum.blowfish
+```
+
+```
+##   mean.blowfish sd.blowfish min.blowfish max.blowfish
+## 1      4.666667     2.33809            2            8
+```
+
+```r
+sum.blueblow &lt;- new.fish.tbl %&gt;%
+  summarize(mean.blowfish = mean(blowfish), # means for two columns
+            mean.bluefish = mean(bluefish))
+sum.blueblow
+```
+
+```
+##   mean.blowfish mean.bluefish
+## 1      4.666667      4.833333
+```
+
+```r
+range.total &lt;- new.fish.tbl %&gt;%
+  summarize(range.total = range(totalfish), # range and quantiles for totalfish
+            quant.total = quantile(totalfish, c(0.05, 0.95)))
+range.total
+```
+
+```
+##   range.total quant.total
+## 1          14       15.00
+## 2          28       26.25
+```
+
+---
+class: middle, center, inverse
+# Arrange
+# 🔀
+---
+### Arranging columns
+
+- the &lt;span style="color:orange"&gt;arrange()&lt;/span&gt; function takes the place of the sort function from base R
+- NAs will always go to the bottom of the column
+
+
+```r
+fish.tbl.order &lt;- new.fish.tbl %&gt;%
+  arrange(type) # arrange by type
+fish.tbl.order
+```
+
+```
+##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type log_totalfish
+## 1        Australia continental        3        7          4        0        14        Australia.continental      2.639057
+## 2        Indonesia continental        7        2          7        2        18        Indonesia.continental      2.890372
+## 3      Philippines continental        5        8          1        4        18      Philippines.continental      2.890372
+## 4 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental      3.332205
+## 5             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic      3.044522
+## 6         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic      3.044522
+```
+
+```r
+fish.tbl.order.total &lt;- new.fish.tbl %&gt;%
+  arrange(-totalfish) # arrange by totalfish, descending
+fish.tbl.order.total
+```
+
+```
+##           location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type log_totalfish
+## 1 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental      3.332205
+## 2             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic      3.044522
+## 3         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic      3.044522
+## 4        Indonesia continental        7        2          7        2        18        Indonesia.continental      2.890372
+## 5      Philippines continental        5        8          1        4        18      Philippines.continental      2.890372
+## 6        Australia continental        3        7          4        0        14        Australia.continental      2.639057
+```
+
+```r
+fish.tbl.order.NA &lt;- new.fish.tbl %&gt;%
+  mutate(na.fish = c(1, 2, 3, NA, 5, 6)) %&gt;% # create column with NAs
+  arrange(na.fish) %&gt;% # arrange data by na.fish (ascending)
+  relocate(na.fish)
+fish.tbl.order.NA
+```
+
+```
+##   na.fish         location        type bluefish blowfish yellowfish greyfish totalfish                     loc_type
+## 1       1        Australia continental        3        7          4        0        14        Australia.continental
+## 2       2        Indonesia continental        7        2          7        2        18        Indonesia.continental
+## 3       3      Philippines continental        5        8          1        4        18      Philippines.continental
+## 4       5         Solomons     oceanic        3        4          6        8        21             Solomons.oceanic
+## 5       6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental
+## 6      NA             Fiji     oceanic        5        4          6        6        21                 Fiji.oceanic
+##   log_totalfish
+## 1      2.639057
+## 2      2.890372
+## 3      2.890372
+## 4      3.044522
+## 5      3.332205
+## 6      3.044522
+```
+---
+class: inverse, center, top
+
+# Exercise 2.1 🏋️‍♀️
+
+### Read in your fishtibble.csv file and perform the following:
+
+### a) Remove the values for the Philippines
+
+### b) Retain only the first two columns
+
+### c) Create a new column that contains the ratio of bluefish to blowfish
+
+### d) Obtain the variance in bluefish, blowfish, and yellowfish
+
+### e) Sort your dataset in the reverse alphabetical order of locations
+
+---
+class: center, top
+# Solution 2.1a 🤓
+
+## a) Remove the values for the Philippines
+
+```r
+fish.tibble &lt;- read.csv(file = "data/fishtibble.csv")
+a &lt;- fish.tibble %&gt;%
+  filter(location != "Philippines")
+a
+```
+
+```
+##   bluefish blowfish yellowfish         location
+## 1        3        7          4        Australia
+## 2        7        2          7        Indonesia
+## 3        5        4          6             Fiji
+## 4        3        4          6         Solomons
+## 5        6        3          9 Papua New Guinea
+```
+---
+class: center, top
+# Solution 2.1b 🤓
+
+## b) Retain only the first two columns
+
+```r
+b &lt;- fish.tibble %&gt;%
+  select(1:2)
+b
+```
+
+```
+##   bluefish blowfish
+## 1        3        7
+## 2        7        2
+## 3        5        8
+## 4        5        4
+## 5        3        4
+## 6        6        3
+```
+---
+class: center, top
+# Solution 2.1c 🤓
+
+## c) Create a new column that contains the ratio of bluefish to blowfish
+
+```r
+c &lt;- fish.tibble %&gt;%
+  mutate(ratio = bluefish/blowfish)
+c
+```
+
+```
+##   bluefish blowfish yellowfish         location     ratio
+## 1        3        7          4        Australia 0.4285714
+## 2        7        2          7        Indonesia 3.5000000
+## 3        5        8          1      Philippines 0.6250000
+## 4        5        4          6             Fiji 1.2500000
+## 5        3        4          6         Solomons 0.7500000
+## 6        6        3          9 Papua New Guinea 2.0000000
+```
+---
+class: center, top
+# Solution 2.1d 🤓
+
+## d) Obtain the variance in bluefish, blowfish, and yellowfish
+
+```r
+d &lt;- fish.tibble %&gt;%
+  summarize(var_blue = var(bluefish),
+            var_blow = var(blowfish),
+            var_yell = var(yellowfish))
+d
+```
+
+```
+##   var_blue var_blow var_yell
+## 1 2.566667 5.466667      7.5
+```
+---
+class: center, top
+# Solution 2.1e 🤓
+
+## e) Sort your dataset in the reverse alphabetical order of locations
+
+```r
+e &lt;- fish.tibble %&gt;%
+  arrange(desc(location))
+e
+```
+
+```
+##   bluefish blowfish yellowfish         location
+## 1        3        4          6         Solomons
+## 2        5        8          1      Philippines
+## 3        6        3          9 Papua New Guinea
+## 4        7        2          7        Indonesia
+## 5        5        4          6             Fiji
+## 6        3        7          4        Australia
+```
+---
+class: center
+&lt;img src="images/mariekondo.png" width="60%" /&gt;
+---
+class: center, middle
+
+## Auxilliary functions 🔨
+
+**1) &lt;span style="color:orange"&gt; group_by()&lt;/span&gt;: perform actions across rows with the same factor level**
+
+**2) &lt;span style="color:orange"&gt; join()&lt;/span&gt;: combine datasets based on an overlapping column**
+
+**3) &lt;span style="color:orange"&gt; gather()&lt;/span&gt;: compile rows from many columns into a single column**
+
+**4) &lt;span style="color:orange"&gt; spread()&lt;/span&gt;: distribute rows from a single column into many columns**
+
+**5) &lt;span style="color:orange"&gt; case_when()&lt;/span&gt;: apply advanced conditional logic to your mutate statements**
+
+---
+class: center, middle, inverse
+# group_by()
+# 👥 
+---
+### Grouping rows by factor levels
+
+- the &lt;span style="color:orange"&gt; group_by()&lt;/span&gt; creates an internal group structure
+- groupings are now indicated for tibbles
+
+
+```r
+fish.tbl.grouped &lt;- new.fish.tbl %&gt;%
+  group_by(type) # group by type
+fish.tbl.grouped # dataset looks the same, but it will behave differently due to grouping
+```
+
+```
+## # A tibble: 6 × 9
+## # Groups:   type [2]
+##   location         type        bluefish blowfish yellowfish greyfish totalfish loc_type                     log_totalfish
+##   &lt;chr&gt;            &lt;chr&gt;          &lt;int&gt;    &lt;int&gt;      &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;                                &lt;dbl&gt;
+## 1 Australia        continental        3        7          4        0        14 Australia.continental                 2.64
+## 2 Indonesia        continental        7        2          7        2        18 Indonesia.continental                 2.89
+## 3 Philippines      continental        5        8          1        4        18 Philippines.continental               2.89
+## 4 Fiji             oceanic            5        4          6        6        21 Fiji.oceanic                          3.04
+## 5 Solomons         oceanic            3        4          6        8        21 Solomons.oceanic                      3.04
+## 6 Papua New Guinea continental        6        3          9       10        28 Papua New Guinea.continental          3.33
+```
+
+```r
+fish.tbl.sum &lt;- fish.tbl.grouped %&gt;%
+  summarize(mean.fish &lt;- mean(totalfish)) # add summarize() to see new behavior
+fish.tbl.sum
+```
+
+```
+## # A tibble: 2 × 2
+##   type        `mean.fish &lt;- mean(totalfish)`
+##   &lt;chr&gt;                                &lt;dbl&gt;
+## 1 continental                           19.5
+## 2 oceanic                               21
+```
+---
+### Advanced grouping and ungrouping
+
+- we can group by multiple arguments
+- grouping creates a legacy that can mess things up downstream, which we can resolve using &lt;span style="color:orange"&gt; ungroup()&lt;/span&gt;
+
+
+```r
+fish.tbl.sum2 &lt;- new.fish.tbl %&gt;%
+  mutate(region = c("Oceania", "Asia", "Asia", "Oceania", "Asia", "Asia")) %&gt;% # create another variable
+  group_by(region, type) %&gt;% # group by type and region
+  summarize(mean.fish &lt;- mean(totalfish)) # add summarize() to see new behavior
+```
+
+```
+## `summarise()` has grouped output by 'region'. You can override using the `.groups` argument.
+```
+
+```r
+fish.tbl.sum2
+```
+
+```
+## # A tibble: 4 × 3
+## # Groups:   region [2]
+##   region  type        `mean.fish &lt;- mean(totalfish)`
+##   &lt;chr&gt;   &lt;chr&gt;                                &lt;dbl&gt;
+## 1 Asia    continental                           21.3
+## 2 Asia    oceanic                               21  
+## 3 Oceania continental                           14  
+## 4 Oceania oceanic                               21
+```
+
+```r
+fish.tbl.sum3 &lt;- fish.tbl.grouped %&gt;%
+  ungroup() %&gt;% # remove grouping structure
+  summarize(mean.fish &lt;- mean(totalfish)) 
+fish.tbl.sum3
+```
+
+```
+## # A tibble: 1 × 1
+##   `mean.fish &lt;- mean(totalfish)`
+##                            &lt;dbl&gt;
+## 1                             20
+```
+---
+class: center, middle, inverse
+# Join
+# 🤝 
+---
+### Joining datasets
+
+- there are four ways of using the function
+
+1) &lt;span style="color:orange"&gt;left_join()&lt;/span&gt;: retains all elements on the left side of the equation
+
+2) &lt;span style="color:orange"&gt;right_join()&lt;/span&gt;: retains all elements on the right side of the join equation
+
+3) &lt;span style="color:orange"&gt;inner_join()&lt;/span&gt;: only joins elements that match
+
+4) &lt;span style="color:orange"&gt;full_join()&lt;/span&gt;: retains everything
+
+- to explore these functions, let's get some additional data
+- the **wpp2019** package includes a dataset called "pop" with global population sizes by country
+
+
+```r
+library(wpp2019) # load the package
+data(pop) 
+str(pop)
+```
+
+```
+## 'data.frame':	249 obs. of  17 variables:
+##  $ country_code: int  900 947 1833 921 1832 1830 927 1835 1829 903 ...
+##  $ name        : chr  "World" "Sub-Saharan Africa" "Northern Africa and Western Asia" "Central and Southern Asia" ...
+##  $ 1950        : num  2536431 179007 100239 510788 842669 ...
+##  $ 1955        : num  2773020 197490 113425 558666 932210 ...
+##  $ 1960        : num  3034950 220138 129302 619068 1019895 ...
+##  $ 1965        : num  3339584 247831 147822 691687 1127782 ...
+##  $ 1970        : num  3700437 280908 168730 775437 1280853 ...
+##  $ 1975        : num  4079480 321201 192351 870180 1432114 ...
+##  $ 1980        : num  4458003 369614 220224 980359 1555768 ...
+##  $ 1985        : num  4870922 425841 253469 1105791 1684698 ...
+##  $ 1990        : num  5327231 490605 288060 1239984 1837799 ...
+##  $ 1995        : num  5744213 560759 323178 1376200 1950220 ...
+##  $ 2000        : num  6143494 639661 355882 1511915 2044789 ...
+##  $ 2005        : num  6541907 729733 391986 1647074 2125348 ...
+##  $ 2010        : num  6956824 836364 435367 1775361 2201807 ...
+##  $ 2015        : num  7379797 958577 481520 1896327 2279490 ...
+##  $ 2020        : num  7794799 1094366 525869 2014709 2346709 ...
+```
+---
+### Joining in practice
+
+- we are trying to include population sizes from 2020 to countries in our fish.tibble
+
+
+```r
+pop.2020 &lt;- pop %&gt;% 
+  select(name, "2020") %&gt;% #  select the name column and the 2020 column
+  rename(location = "name", # use the rename() function to match the name in our fish.tibble
+         population = "2020") # rename 2020 to 'population' - numbers in columns are a bad idea
+head(pop.2020)
+```
+
+```
+##                           location population
+## 1                            World  7794798.7
+## 2               Sub-Saharan Africa  1094365.6
+## 3 Northern Africa and Western Asia   525869.3
+## 4        Central and Southern Asia  2014708.5
+## 5   Eastern and South-Eastern Asia  2346709.5
+## 6  Latin America and the Caribbean   653962.3
+```
+
+```r
+# Solomons does not exist in the pop dataset, so it gives "NA" for population size
+fish.tibble.left.join &lt;- fish.tibble %&gt;% 
+  left_join(pop.2020, by = "location") # use left_join() to merge pop.2020 into the fish.tibble
+fish.tibble.left.join
+```
+
+```
+##   bluefish blowfish yellowfish         location population
+## 1        3        7          4        Australia  25499.881
+## 2        7        2          7        Indonesia 273523.621
+## 3        5        8          1      Philippines 109581.085
+## 4        5        4          6             Fiji    896.444
+## 5        3        4          6         Solomons         NA
+## 6        6        3          9 Papua New Guinea   8947.027
+```
+
+```r
+# use inner_join() to join pop and fish.tibble datasets, only joining locations that match
+# Solomons is now excluded from the dataset
+fish.tibble.inner.join &lt;- fish.tibble %&gt;%
+  inner_join(pop.2020)
+```
+
+```
+## Joining with `by = join_by(location)`
+```
+
+```r
+fish.tibble.inner.join
+```
+
+```
+##   bluefish blowfish yellowfish         location population
+## 1        3        7          4        Australia  25499.881
+## 2        7        2          7        Indonesia 273523.621
+## 3        5        8          1      Philippines 109581.085
+## 4        5        4          6             Fiji    896.444
+## 5        6        3          9 Papua New Guinea   8947.027
+```
+---
+class: center, middle, inverse
+# Gather
+# 🧺
+---
+### Gathering rows from multiple columns
+
+- the &lt;span style="color:orange"&gt;gather()&lt;/span&gt; function turns data from wide format into long format
+
+- this is extremely useful, as it allows us to use &lt;span style="color:orange"&gt;group_by()&lt;/span&gt; for our newly created variable
+
+
+```r
+fish.gathered &lt;- fish.tibble.inner.join %&gt;%
+  gather(1:3, # specify the columns that include the data frame
+         key = "fish_species", value = "number") # provide names of new key and value columns 
+head(fish.gathered)
+```
+
+```
+##           location population fish_species number
+## 1        Australia  25499.881     bluefish      3
+## 2        Indonesia 273523.621     bluefish      7
+## 3      Philippines 109581.085     bluefish      5
+## 4             Fiji    896.444     bluefish      5
+## 5 Papua New Guinea   8947.027     bluefish      6
+## 6        Australia  25499.881     blowfish      7
+```
+
+```r
+fish.means &lt;- fish.gathered %&gt;%
+  group_by(fish_species) %&gt;% # this is the newly created, gathered variable
+  summarize(mean.fish = mean(number),
+            sd.fish = sd(number))
+fish.means
+```
+
+```
+## # A tibble: 3 × 3
+##   fish_species mean.fish sd.fish
+##   &lt;chr&gt;            &lt;dbl&gt;   &lt;dbl&gt;
+## 1 blowfish           4.8    2.59
+## 2 bluefish           5.2    1.48
+## 3 yellowfish         5.4    3.05
+```
+---
+class: center, middle, inverse
+# Spread
+# 🥯
+---
+### Spreading rows into columns
+
+- the &lt;span style="color:orange"&gt;spread()&lt;/span&gt; function does the inverse of &lt;span style="color:orange"&gt;gather()&lt;/span&gt;
+
+- problems can arise when there are missing observations
+
+
+```r
+fish.spread &lt;- fish.gathered %&gt;%
+  spread(key = fish_species, value = number) # convert the data back into a wide format
+fish.spread
+```
+
+```
+##           location population blowfish bluefish yellowfish
+## 1        Australia  25499.881        7        3          4
+## 2             Fiji    896.444        4        5          6
+## 3        Indonesia 273523.621        2        7          7
+## 4 Papua New Guinea   8947.027        3        6          9
+## 5      Philippines 109581.085        8        5          1
+```
+
+```r
+fish.spread2 &lt;- fish.gathered %&gt;%
+  filter(number != 3) %&gt;% # let's remove all rows that have the value 3
+  spread(key = fish_species, value = number, fill = 0) # fill them with 0s
+fish.spread2
+```
+
+```
+##           location population blowfish bluefish yellowfish
+## 1        Australia  25499.881        7        0          4
+## 2             Fiji    896.444        4        5          6
+## 3        Indonesia 273523.621        2        7          7
+## 4 Papua New Guinea   8947.027        0        6          9
+## 5      Philippines 109581.085        8        5          1
+```
+---
+class: center, middle, inverse
+# case_when
+# 🧐
+---
+### Advanced logic within &lt;span style="color:orange"&gt;mutate()&lt;/span&gt;
+
+- the &lt;span style="color:orange"&gt;case_when()&lt;/span&gt; function lets you apply logic within &lt;span style="color:orange"&gt;mutate()&lt;/span&gt;
+
+- this is _extremely_ useful, but can take a while to get the hang of
+
+
+```r
+fish.spread.case &lt;- fish.spread %&gt;%
+  mutate(pop.cat = case_when(population &gt; 10000 ~ "high", # high or low 
+                             TRUE ~ "low"))
+
+fish.spread.case
+```
+
+```
+##           location population blowfish bluefish yellowfish pop.cat
+## 1        Australia  25499.881        7        3          4    high
+## 2             Fiji    896.444        4        5          6     low
+## 3        Indonesia 273523.621        2        7          7    high
+## 4 Papua New Guinea   8947.027        3        6          9     low
+## 5      Philippines 109581.085        8        5          1    high
+```
+---
+class: inverse, center, top
+
+# Exercise 2.2 🏋️‍♀️
+
+### Create the following vector:
+
+
+```r
+families &lt;- data.frame("Families" = as.character(c("Acanthuridae", "Kyphosidae", "Labridae", "Siganidae")),
+                       "Common" = as.character(c("surgeonfishes", "chubs", "parrotfishes", "rabbitfishes")))
+```
+
+### a) Read in the 'coralreefherbivores.csv' dataset and obtain the mean bodydeph across  families
+
+### b) Integrate the common names for each family into the dataset
+
+### c) Compile sl, bodydepth, snoutlength, and eyediameter into a single column called "morphometrics"
+
+### d) Reverse the previous action
+
+### e) Create a new column called "googly_eyed" where all species that have an eyediameter &gt;=0.3 are tagged as "googly" and those with eyediameters &lt;0.3 as "notgoogly"
+---
+class: center, top
+# Solution 2.2a 🤓
+
+## a) Obtain the mean bodydeph across different families
+
+```r
+herbs &lt;- read.csv(file = "data/coralreefherbivores.csv")
+a &lt;- herbs %&gt;%
+  group_by(family) %&gt;%
+  summarize(mean.bd = mean(bodydepth))
+head(a)
+```
+
+```
+## # A tibble: 4 × 2
+##   family       mean.bd
+##   &lt;chr&gt;          &lt;dbl&gt;
+## 1 Acanthuridae   0.487
+## 2 Kyphosidae     0.479
+## 3 Labridae       0.392
+## 4 Siganidae      0.443
+```
+---
+class: center, top
+# Solution 2.2b 🤓
+
+## b) Integrate the common names for each family into the dataset
+
+```r
+b &lt;- families %&gt;%
+  rename(family = "Families") %&gt;%
+  inner_join(herbs)
+```
+
+```
+## Joining with `by = join_by(family)`
+```
+
+```r
+head(b)
+```
+
+```
+##         family        Common      genus        species                   gen.spe       sl bodydepth snoutlength
+## 1 Acanthuridae surgeonfishes Acanthurus       achilles       Acanthurus.achilles 163.6667 0.5543625   0.4877797
+## 2 Acanthuridae surgeonfishes Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300 0.4405350   0.4402623
+## 3 Acanthuridae surgeonfishes Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000 0.4726556   0.5386490
+## 4 Acanthuridae surgeonfishes Acanthurus        blochii        Acanthurus.blochii  82.9000 0.5586486   0.4782217
+## 5 Acanthuridae surgeonfishes Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033 0.5457248   0.5661867
+## 6 Acanthuridae surgeonfishes Acanthurus        fowleri        Acanthurus.fowleri 266.0000 0.4669521   0.5950563
+##   eyediameter size    schooling
+## 1   0.3507191    S     Solitary
+## 2   0.2560593    M  SmallGroups
+## 3   0.2451253    M MediumGroups
+## 4   0.3196155    M  SmallGroups
+## 5   0.2807218    L     Solitary
+## 6   0.2217376    M     Solitary
+```
+---
+class: center, top
+# Solution 2.2c 🤓
+
+## c) Compile the values for sl, bodydepth, snoutlength, and eyediameter into a single column called "measurement", with a variable called "category" as the key
+
+```r
+c &lt;- herbs %&gt;%
+  gather(5:8, key = "category", value = "measurement")
+head(c)
+```
+
+```
+##         family      genus        species                   gen.spe size    schooling category measurement
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles    S     Solitary       sl    163.6667
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis    M  SmallGroups       sl    212.7300
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus    M MediumGroups       sl    216.0000
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii    M  SmallGroups       sl     82.9000
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri    L     Solitary       sl    193.7033
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri    M     Solitary       sl    266.0000
+```
+---
+class: center, top
+# Solution 2.2d 🤓
+
+## d) Reverse the previous action
+
+```r
+d &lt;- c %&gt;%
+  spread(key = "category", value = "measurement")
+head(d)
+```
+
+```
+##         family      genus        species                   gen.spe size    schooling bodydepth eyediameter       sl
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles    S     Solitary 0.5543625   0.3507191 163.6667
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis    M  SmallGroups 0.4405350   0.2560593 212.7300
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus    M MediumGroups 0.4726556   0.2451253 216.0000
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii    M  SmallGroups 0.5586486   0.3196155  82.9000
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri    L     Solitary 0.5457248   0.2807218 193.7033
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri    M     Solitary 0.4669521   0.2217376 266.0000
+##   snoutlength
+## 1   0.4877797
+## 2   0.4402623
+## 3   0.5386490
+## 4   0.4782217
+## 5   0.5661867
+## 6   0.5950563
+```
+---
+class: center, top
+# Solution 2.2e 🤓
+
+## e) Create a new column called "googly_eyed" based on eyediameter
+
+```r
+e &lt;- herbs %&gt;%
+  mutate(googly_eyed = case_when(eyediameter &gt;= 0.3 ~ "googly",
+                                 TRUE ~ "notgoogly"))
+head(e)
+```
+
+```
+##         family      genus        species                   gen.spe       sl bodydepth snoutlength eyediameter size
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles 163.6667 0.5543625   0.4877797   0.3507191    S
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300 0.4405350   0.4402623   0.2560593    M
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000 0.4726556   0.5386490   0.2451253    M
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii  82.9000 0.5586486   0.4782217   0.3196155    M
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033 0.5457248   0.5661867   0.2807218    L
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri 266.0000 0.4669521   0.5950563   0.2217376    M
+##      schooling googly_eyed
+## 1     Solitary      googly
+## 2  SmallGroups   notgoogly
+## 3 MediumGroups   notgoogly
+## 4  SmallGroups      googly
+## 5     Solitary   notgoogly
+## 6     Solitary   notgoogly
+```
+---
+background-image: url("images/slineatus_2.jpg")
+background-size: cover
+class: center, top, inverse
+---
+class: center, middle
+# The end
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"ratio": "16:9",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
