@@ -81,9 +81,6 @@ knitr::include_graphics("images/ggplot2.png")
 ```
 ]
 ---
-class: center, middle, inverse
-# Getting started
----
 ## The basic concept
 ```{r echo=FALSE, out.width="100%"}
 knitr::include_graphics("images/ggplot-layers.png")
@@ -130,6 +127,10 @@ reef.fish <- read.csv(file = "data/reef_fishes.csv")
 head(reef.fish)
 ```
 ---
+class: center, middle, inverse
+# Getting started
+---
+
 ## The <span style="color:orange">ggplot()</span> function
 
 .pull-left[
@@ -159,7 +160,7 @@ p1
 - this doesn't actually change anything in how the plot looks, but it directs the function to the dataset to use for all other arguments
 
 ```{r, echo = TRUE}
-# let's use the herbivore.traits dataset for our first plots
+# use the herbivore.traits dataset
 p1 <- ggplot(data = herbivore.traits)
 ```
 
@@ -175,14 +176,16 @@ p1
 ## Specifying aesthetics using aes()
 
 .pull-left[
-- aesthetics in ggplot (specified with the aes() argument) clarify which columns hold the infromation and how you want to use it
+- aesthetics in ggplot (specified with the aes() argument) clarify which columns hold the information and how you want to use it
 
 - let's say we want to look at the relationship between herbivore body depth (x) and eye diameter (y)
 
 - as you can see, we now get axes on our graph that reflect our variables of interest
 
 ```{r, echo = TRUE}
-p1 <- ggplot(data = herbivore.traits, aes(x = bodydepth, y = eyediameter))
+p1 <- ggplot(data = herbivore.traits, 
+             aes(x = bodydepth, 
+                 y = eyediameter))
 ```
 
 ]
@@ -235,7 +238,6 @@ p1 <- ggplot(data = herbivore.traits,
              color = "blue")
 ```
 
-- better?
 
 ]
 
@@ -326,7 +328,7 @@ p1
 .pull-left[
 - if there is too much information for one panel, we can tell ggplot to create multiple panels
 
-- this is done using the fact_grid() or facet_wrap() argument
+- this is done using the facet_grid() or facet_wrap() argument
 
 ```{r, echo = TRUE}
 p1 <- ggplot(data = herbivore.traits, 
@@ -360,7 +362,7 @@ class: inverse, center, top
 
 ### a) Create a scatterplot with ggplot2 where x = 'sl' and y = 'bodydepth'
 
-### b) Change the points to be black triangles with size 4
+### b) Change the points to be black triangles (shape = 17) with size 4
 
 ### c) Change the color of the points to reflect different genera
 
@@ -580,7 +582,9 @@ p3 <- ggplot(data = herbivore.traits,
              aes(x = family, 
                  y = eyediameter,
                  fill = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95))
+  geom_violin(draw_quantiles = c(0.05, 
+                                 0.5, 
+                                 0.95))
 ```
 
 - since violins can't be made from a single data point, we are losing the Kyphosidae 
@@ -678,7 +682,9 @@ class: center, top
 p4 <- ggplot(data = herbivore.traits, 
              aes(x = eyediameter, 
                  y = size)) +
-  geom_violin(draw_quantiles = c(0.2, 0.5, 0.8))
+  geom_violin(draw_quantiles = c(0.2,
+                                 0.5,
+                                 0.8))
 ```
 ]
 
@@ -697,7 +703,10 @@ p4 <- ggplot(data = herbivore.traits,
              aes(x = eyediameter, 
                  y = size,
                  fill = size)) +
-  geom_violin(draw_quantiles = c(0.2, 0.5, 0.8), alpha = 0.5)
+  geom_violin(draw_quantiles = c(0.2,
+                                 0.5,
+                                 0.8), 
+              alpha = 0.5)
 ```
 ]
 
@@ -716,7 +725,10 @@ p4 <- ggplot(data = herbivore.traits,
              aes(x = eyediameter, 
                  y = size,
                  fill = size)) +
-  geom_violin(draw_quantiles = c(0.2, 0.5, 0.8), alpha = 0.5) +
+  geom_violin(draw_quantiles = c(0.2, 
+                                 0.5,
+                                 0.8),
+              alpha = 0.5) +
   geom_point(aes(shape = family))
 ```
 ]
@@ -730,13 +742,11 @@ p4
 class: center, middle, inverse
 # Uncertainty `r emo::ji("thinking_face")`
 ---
-## Barplots and caterpillar plots
+## Means and errors
 
 .pull-left[
 
-- plot means and their uncertainties
-
-- barplots with error bars or caterpillar plots provide a good option `r emo::ji("bug")`
+- historically: barplots `r emo::ji("woozy_face")`
 
 - we have to do some tidy data wrangling to get our data into this format
 
@@ -744,37 +754,12 @@ class: center, middle, inverse
 herbivore.trait.means <- herbivore.traits %>%
   group_by(family) %>%
   summarize(mean.eye = mean(eyediameter),
-            sd.eye = sd(eyediameter), 
-            n = n()) %>% 
+            sd.eye = sd(eyediameter), n = n()) %>% 
   mutate(se.eye = sqrt(sd.eye)/n, 
-         lower.ci = mean.eye - qt(1 - (0.05 / 2), n - 1) * se.eye,
-         upper.ci = mean.eye + qt(1 - (0.05 / 2), n - 1) * se.eye)
-
-p5 <- ggplot(data = herbivore.trait.means, 
-             aes(x = family, 
-                 y = mean.eye, 
-                 fill = family)) +
-  geom_bar(stat = "identity")  # barplot
-```
-]
-
-.pull-right[ .center[
-```{r, echo = F, warning=FALSE}
-p5
-```
-]]
----
-## Barplots and caterpillar plots
-
-.pull-left[
-
-- plot means and their uncertainties
-
-- barplots with error bars or caterpillar plots provide a good option `r emo::ji("bug")`
-
-- we have to do some tidy data wrangling to get our data into this format
-
-```{r, echo = TRUE, warning = F, message=FALSE}
+         lower.ci = mean.eye - qt(1 - (0.05 / 2), 
+                                  n - 1) * se.eye,
+         upper.ci = mean.eye + qt(1 - (0.05 / 2), 
+                                  n - 1) * se.eye)
 
 p5 <- ggplot(data = herbivore.trait.means, 
              aes(x = family, 
@@ -794,7 +779,7 @@ p5
 
 .pull-left[
 
-- the previous plot was... not great
+- the previous plot was... not great `r emo::ji("nauseated_face")`
 
 - we can improve it by adding uncertainty using the geom_errorbar() geom
 
@@ -805,35 +790,10 @@ p5 <- ggplot(data = herbivore.trait.means,
                  y = mean.eye, 
                  fill = family)) +
   geom_bar(stat = "identity") +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci))
+  geom_errorbar(aes(ymin = lower.ci,
+                    ymax = upper.ci))
 ```
-- better but not great tbh
-]
-
-.pull-right[ .center[
-```{r, echo = F, warning=FALSE}
-p5
-```
-]]
----
-## Barplots with uncertainty
-
-.pull-left[
-
-- the previous plot was... not great
-
-- we can improve it by adding uncertainty using the geom_errorbar() geom
-
-```{r, echo = TRUE, warning = F, message=FALSE}
-
-p5 <- ggplot(data = herbivore.trait.means, 
-             aes(x = family, 
-                 y = mean.eye, 
-                 fill = family)) +
-  geom_bar(stat = "identity") +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci))
-```
-- better but not great tbh
+- better but not fantastic tbh
 ]
 
 .pull-right[ .center[
@@ -890,8 +850,11 @@ p6 <- ggplot(data = herbivore.traits,
              aes(x = family, 
                  y = eyediameter, 
                  fill = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
-  geom_jitter(width = 0.1, color = "white", alpha = 0.5) +
+  geom_violin(draw_quantiles = c(0.05, 
+                                 0.5, 
+                                 0.95)) + 
+  geom_jitter(width = 0.1, color = "white", 
+              alpha = 0.8) +
   scale_fill_manual(values = c("steelblue", 
                                "yellowgreen", 
                                "darkorchid",
@@ -923,7 +886,9 @@ p6 <- ggplot(data = herbivore.traits,
                  y = eyediameter, 
                  fill = family,
                  shape = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
+  geom_violin(draw_quantiles = c(0.05,
+                                 0.5,
+                                 0.95)) + 
   geom_jitter(color = "black", size = 3) +
   scale_fill_manual(values = c("steelblue", 
                                "yellowgreen", 
@@ -954,7 +919,9 @@ p6 <- ggplot(data = herbivore.traits,
                  y = eyediameter, 
                  fill = family,
                  shape = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
+  geom_violin(draw_quantiles = c(0.05,
+                                 0.5,
+                                 0.95)) + 
   geom_jitter(color = "black", size = 3) +
   scale_fill_viridis_d()+
   scale_shape_manual(values = c(21:24))
@@ -976,8 +943,11 @@ p6
 p6 <- ggplot(data = herbivore.traits, 
              aes(x = family, 
                  y = eyediameter, 
-                 fill = family, shape = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
+                 fill = family, 
+                 shape = family)) +
+  geom_violin(draw_quantiles = c(0.05,
+                                 0.5,
+                                 0.95)) + 
   geom_jitter(color = "black", size = 3) +
   scale_fill_fish_d(option = "Centropyge_loricula")+
   scale_shape_manual(values = c(21:24))
@@ -1031,7 +1001,8 @@ p6
 p6 <- ggplot(data = herbivore.traits, 
              aes(x = bodydepth, 
                  y = eyediameter, 
-                 fill = sl, shape = family)) +
+                 fill = sl,
+                 shape = family)) +
   geom_jitter(color = "black", size = 3) +
   scale_fill_fish(option = "Trimma_lantana")+
   scale_shape_manual(values = c(21:24)) +
@@ -1180,7 +1151,10 @@ p7 <- ggplot(reef.fish, aes(x = length,
   annotation_logticks(sides = "b") +
   xlab("Body length (cm)") +
   ylab("Year of description") +
-  scale_color_fish_d(option = "Trimma_lantana", name = "Fish category", labels = c("Cryptobenthic", "Mobile"))
+  scale_color_fish_d(option = "Trimma_lantana",
+                     name = "Fish category",
+                     labels = c("Cryptobenthic", 
+                                "Mobile"))
 ```
 ]
 
@@ -1225,7 +1199,7 @@ class: inverse, center, top
 
 ---
 class: center, top
-# Solution 3.2a `r emo::ji("nerd_face")`
+# Solution 3.3a `r emo::ji("nerd_face")`
 
 .pull-left[
 ```{r, echo = TRUE, error = TRUE}
@@ -1244,7 +1218,7 @@ p9
 ]]
 ---
 class: center, top
-# Solution 3.2b `r emo::ji("nerd_face")`
+# Solution 3.3b `r emo::ji("nerd_face")`
 
 .pull-left[
 ```{r, echo = TRUE, error = TRUE}

@@ -71,9 +71,6 @@ class: center, top
 &lt;img src="images/ggplot2.png" width="75%" /&gt;
 ]
 ---
-class: center, middle, inverse
-# Getting started
----
 ## The basic concept
 &lt;img src="images/ggplot-layers.png" width="100%" /&gt;
 
@@ -101,6 +98,21 @@ class: center, middle, inverse
 
 library(ggplot2)
 library(tidyverse)
+```
+
+```
+## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.4
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
+## ✔ purrr     1.0.2     ✔ tidyr     1.3.0
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
+```
+
+```r
 library(patchwork)
 library(fishualize)
 library(ggridges)
@@ -117,20 +129,20 @@ head(herbivore.traits)
 ```
 
 ```
-##         family      genus        species                   gen.spe       sl bodydepth
-## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles 163.6667 0.5543625
-## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300 0.4405350
-## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000 0.4726556
-## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii  82.9000 0.5586486
-## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033 0.5457248
-## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri 266.0000 0.4669521
-##   snoutlength eyediameter size    schooling
-## 1   0.4877797   0.3507191    S     Solitary
-## 2   0.4402623   0.2560593    M  SmallGroups
-## 3   0.5386490   0.2451253    M MediumGroups
-## 4   0.4782217   0.3196155    M  SmallGroups
-## 5   0.5661867   0.2807218    L     Solitary
-## 6   0.5950563   0.2217376    M     Solitary
+##         family      genus        species                   gen.spe       sl
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles 163.6667
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii  82.9000
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri 266.0000
+##   bodydepth snoutlength eyediameter size    schooling
+## 1 0.5543625   0.4877797   0.3507191    S     Solitary
+## 2 0.4405350   0.4402623   0.2560593    M  SmallGroups
+## 3 0.4726556   0.5386490   0.2451253    M MediumGroups
+## 4 0.5586486   0.4782217   0.3196155    M  SmallGroups
+## 5 0.5457248   0.5661867   0.2807218    L     Solitary
+## 6 0.4669521   0.5950563   0.2217376    M     Solitary
 ```
 
 ```r
@@ -139,22 +151,26 @@ head(reef.fish)
 ```
 
 ```
-##         family                  genspe        genus      species year         habitat
-## 1 Acanthuridae      Acanthurus.tristis   Acanthurus      tristis 1993 reef-associated
-## 2 Acanthuridae      Acanthurus.blochii   Acanthurus      blochii 1835 reef-associated
-## 3 Acanthuridae Acanthurus.xanthopterus   Acanthurus xanthopterus 1835 reef-associated
-## 4 Acanthuridae    Acanthurus.chirurgus   Acanthurus    chirurgus 1787 reef-associated
-## 5 Acanthuridae  Ctenochaetus.truncatus Ctenochaetus    truncatus 2001 reef-associated
-## 6 Acanthuridae   Acanthurus.dussumieri   Acanthurus   dussumieri 1835 reef-associated
-##   depth length  category
-## 1    30     25 No_crypto
-## 2    15     45 No_crypto
-## 3   100     70 No_crypto
-## 4    25     39 No_crypto
-## 5    21     16 No_crypto
-## 6   131     54 No_crypto
+##         family                  genspe        genus      species year
+## 1 Acanthuridae      Acanthurus.tristis   Acanthurus      tristis 1993
+## 2 Acanthuridae      Acanthurus.blochii   Acanthurus      blochii 1835
+## 3 Acanthuridae Acanthurus.xanthopterus   Acanthurus xanthopterus 1835
+## 4 Acanthuridae    Acanthurus.chirurgus   Acanthurus    chirurgus 1787
+## 5 Acanthuridae  Ctenochaetus.truncatus Ctenochaetus    truncatus 2001
+## 6 Acanthuridae   Acanthurus.dussumieri   Acanthurus   dussumieri 1835
+##           habitat depth length  category
+## 1 reef-associated    30     25 No_crypto
+## 2 reef-associated    15     45 No_crypto
+## 3 reef-associated   100     70 No_crypto
+## 4 reef-associated    25     39 No_crypto
+## 5 reef-associated    21     16 No_crypto
+## 6 reef-associated   131     54 No_crypto
 ```
 ---
+class: center, middle, inverse
+# Getting started
+---
+
 ## The &lt;span style="color:orange"&gt;ggplot()&lt;/span&gt; function
 
 .pull-left[
@@ -184,7 +200,7 @@ p1 &lt;- ggplot()
 
 
 ```r
-# let's use the herbivore.traits dataset for our first plots
+# use the herbivore.traits dataset
 p1 &lt;- ggplot(data = herbivore.traits)
 ```
 
@@ -198,7 +214,7 @@ p1 &lt;- ggplot(data = herbivore.traits)
 ## Specifying aesthetics using aes()
 
 .pull-left[
-- aesthetics in ggplot (specified with the aes() argument) clarify which columns hold the infromation and how you want to use it
+- aesthetics in ggplot (specified with the aes() argument) clarify which columns hold the information and how you want to use it
 
 - let's say we want to look at the relationship between herbivore body depth (x) and eye diameter (y)
 
@@ -206,7 +222,9 @@ p1 &lt;- ggplot(data = herbivore.traits)
 
 
 ```r
-p1 &lt;- ggplot(data = herbivore.traits, aes(x = bodydepth, y = eyediameter))
+p1 &lt;- ggplot(data = herbivore.traits, 
+             aes(x = bodydepth, 
+                 y = eyediameter))
 ```
 
 ]
@@ -257,7 +275,6 @@ p1 &lt;- ggplot(data = herbivore.traits,
              color = "blue")
 ```
 
-- better?
 
 ]
 
@@ -343,7 +360,7 @@ p1 &lt;- ggplot(data = herbivore.traits,
 .pull-left[
 - if there is too much information for one panel, we can tell ggplot to create multiple panels
 
-- this is done using the fact_grid() or facet_wrap() argument
+- this is done using the facet_grid() or facet_wrap() argument
 
 
 ```r
@@ -374,7 +391,7 @@ class: inverse, center, top
 
 ### a) Create a scatterplot with ggplot2 where x = 'sl' and y = 'bodydepth'
 
-### b) Change the points to be black triangles with size 4
+### b) Change the points to be black triangles (shape = 17) with size 4
 
 ### c) Change the color of the points to reflect different genera
 
@@ -583,7 +600,9 @@ p3 &lt;- ggplot(data = herbivore.traits,
              aes(x = family, 
                  y = eyediameter,
                  fill = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95))
+  geom_violin(draw_quantiles = c(0.05, 
+                                 0.5, 
+                                 0.95))
 ```
 
 - since violins can't be made from a single data point, we are losing the Kyphosidae 
@@ -681,7 +700,9 @@ class: center, top
 p4 &lt;- ggplot(data = herbivore.traits, 
              aes(x = eyediameter, 
                  y = size)) +
-  geom_violin(draw_quantiles = c(0.2, 0.5, 0.8))
+  geom_violin(draw_quantiles = c(0.2,
+                                 0.5,
+                                 0.8))
 ```
 ]
 
@@ -699,7 +720,10 @@ p4 &lt;- ggplot(data = herbivore.traits,
              aes(x = eyediameter, 
                  y = size,
                  fill = size)) +
-  geom_violin(draw_quantiles = c(0.2, 0.5, 0.8), alpha = 0.5)
+  geom_violin(draw_quantiles = c(0.2,
+                                 0.5,
+                                 0.8), 
+              alpha = 0.5)
 ```
 ]
 
@@ -717,7 +741,10 @@ p4 &lt;- ggplot(data = herbivore.traits,
              aes(x = eyediameter, 
                  y = size,
                  fill = size)) +
-  geom_violin(draw_quantiles = c(0.2, 0.5, 0.8), alpha = 0.5) +
+  geom_violin(draw_quantiles = c(0.2, 
+                                 0.5,
+                                 0.8),
+              alpha = 0.5) +
   geom_point(aes(shape = family))
 ```
 ]
@@ -729,13 +756,11 @@ p4 &lt;- ggplot(data = herbivore.traits,
 class: center, middle, inverse
 # Uncertainty 🤔
 ---
-## Barplots and caterpillar plots
+## Means and errors
 
 .pull-left[
 
-- plot means and their uncertainties
-
-- barplots with error bars or caterpillar plots provide a good option 🐛
+- historically: barplots 🥴
 
 - we have to do some tidy data wrangling to get our data into this format
 
@@ -744,11 +769,12 @@ class: center, middle, inverse
 herbivore.trait.means &lt;- herbivore.traits %&gt;%
   group_by(family) %&gt;%
   summarize(mean.eye = mean(eyediameter),
-            sd.eye = sd(eyediameter), 
-            n = n()) %&gt;% 
+            sd.eye = sd(eyediameter), n = n()) %&gt;% 
   mutate(se.eye = sqrt(sd.eye)/n, 
-         lower.ci = mean.eye - qt(1 - (0.05 / 2), n - 1) * se.eye,
-         upper.ci = mean.eye + qt(1 - (0.05 / 2), n - 1) * se.eye)
+         lower.ci = mean.eye - qt(1 - (0.05 / 2), 
+                                  n - 1) * se.eye,
+         upper.ci = mean.eye + qt(1 - (0.05 / 2), 
+                                  n - 1) * se.eye)
 
 p5 &lt;- ggplot(data = herbivore.trait.means, 
              aes(x = family, 
@@ -762,15 +788,13 @@ p5 &lt;- ggplot(data = herbivore.trait.means,
 ![](03-ggplot_files/figure-html/unnamed-chunk-58-1.png)&lt;!-- --&gt;
 ]]
 ---
-## Barplots and caterpillar plots
+## Barplots with uncertainty
 
 .pull-left[
 
-- plot means and their uncertainties
+- the previous plot was... not great 🤢
 
-- barplots with error bars or caterpillar plots provide a good option 🐛
-
-- we have to do some tidy data wrangling to get our data into this format
+- we can improve it by adding uncertainty using the geom_errorbar() geom
 
 
 ```r
@@ -778,60 +802,15 @@ p5 &lt;- ggplot(data = herbivore.trait.means,
              aes(x = family, 
                  y = mean.eye, 
                  fill = family)) +
-  geom_bar(stat = "identity")  # barplot
+  geom_bar(stat = "identity") +
+  geom_errorbar(aes(ymin = lower.ci,
+                    ymax = upper.ci))
 ```
+- better but not fantastic tbh
 ]
 
 .pull-right[ .center[
 ![](03-ggplot_files/figure-html/unnamed-chunk-60-1.png)&lt;!-- --&gt;
-]]
----
-## Barplots with uncertainty
-
-.pull-left[
-
-- the previous plot was... not great
-
-- we can improve it by adding uncertainty using the geom_errorbar() geom
-
-
-```r
-p5 &lt;- ggplot(data = herbivore.trait.means, 
-             aes(x = family, 
-                 y = mean.eye, 
-                 fill = family)) +
-  geom_bar(stat = "identity") +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci))
-```
-- better but not great tbh
-]
-
-.pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-62-1.png)&lt;!-- --&gt;
-]]
----
-## Barplots with uncertainty
-
-.pull-left[
-
-- the previous plot was... not great
-
-- we can improve it by adding uncertainty using the geom_errorbar() geom
-
-
-```r
-p5 &lt;- ggplot(data = herbivore.trait.means, 
-             aes(x = family, 
-                 y = mean.eye, 
-                 fill = family)) +
-  geom_bar(stat = "identity") +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci))
-```
-- better but not great tbh
-]
-
-.pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-64-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Caterpillar plots
@@ -855,7 +834,7 @@ geom_pointrange(aes(ymin = lower.ci,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-66-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-62-1.png)&lt;!-- --&gt;
 ]]
 ---
 class: center, middle
@@ -879,8 +858,11 @@ p6 &lt;- ggplot(data = herbivore.traits,
              aes(x = family, 
                  y = eyediameter, 
                  fill = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
-  geom_jitter(width = 0.1, color = "white", alpha = 0.5) +
+  geom_violin(draw_quantiles = c(0.05, 
+                                 0.5, 
+                                 0.95)) + 
+  geom_jitter(width = 0.1, color = "white", 
+              alpha = 0.8) +
   scale_fill_manual(values = c("steelblue", 
                                "yellowgreen", 
                                "darkorchid",
@@ -890,7 +872,7 @@ p6 &lt;- ggplot(data = herbivore.traits,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-69-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-65-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Changing shapes
@@ -911,7 +893,9 @@ p6 &lt;- ggplot(data = herbivore.traits,
                  y = eyediameter, 
                  fill = family,
                  shape = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
+  geom_violin(draw_quantiles = c(0.05,
+                                 0.5,
+                                 0.95)) + 
   geom_jitter(color = "black", size = 3) +
   scale_fill_manual(values = c("steelblue", 
                                "yellowgreen", 
@@ -922,7 +906,7 @@ p6 &lt;- ggplot(data = herbivore.traits,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-71-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-67-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Using color palettes
@@ -941,7 +925,9 @@ p6 &lt;- ggplot(data = herbivore.traits,
                  y = eyediameter, 
                  fill = family,
                  shape = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
+  geom_violin(draw_quantiles = c(0.05,
+                                 0.5,
+                                 0.95)) + 
   geom_jitter(color = "black", size = 3) +
   scale_fill_viridis_d()+
   scale_shape_manual(values = c(21:24))
@@ -949,7 +935,7 @@ p6 &lt;- ggplot(data = herbivore.traits,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-73-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-69-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Fishualize 😍
@@ -962,8 +948,11 @@ p6 &lt;- ggplot(data = herbivore.traits,
 p6 &lt;- ggplot(data = herbivore.traits, 
              aes(x = family, 
                  y = eyediameter, 
-                 fill = family, shape = family)) +
-  geom_violin(draw_quantiles = c(0.05, 0.5, 0.95)) + 
+                 fill = family, 
+                 shape = family)) +
+  geom_violin(draw_quantiles = c(0.05,
+                                 0.5,
+                                 0.95)) + 
   geom_jitter(color = "black", size = 3) +
   scale_fill_fish_d(option = "Centropyge_loricula")+
   scale_shape_manual(values = c(21:24))
@@ -973,7 +962,7 @@ p6 &lt;- ggplot(data = herbivore.traits,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-76-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-72-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Continuous color palettes
@@ -995,7 +984,7 @@ p6 &lt;- ggplot(data = herbivore.traits,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-79-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-75-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Themes
@@ -1011,7 +1000,8 @@ p6 &lt;- ggplot(data = herbivore.traits,
 p6 &lt;- ggplot(data = herbivore.traits, 
              aes(x = bodydepth, 
                  y = eyediameter, 
-                 fill = sl, shape = family)) +
+                 fill = sl,
+                 shape = family)) +
   geom_jitter(color = "black", size = 3) +
   scale_fill_fish(option = "Trimma_lantana")+
   scale_shape_manual(values = c(21:24)) +
@@ -1020,7 +1010,7 @@ p6 &lt;- ggplot(data = herbivore.traits,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-81-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-77-1.png)&lt;!-- --&gt;
 ]]
 ---
 class: center, middle, inverse
@@ -1037,20 +1027,20 @@ class: center, middle, inverse
 
 
 ```
-##         family                  genspe        genus      species year         habitat
-## 1 Acanthuridae      Acanthurus.tristis   Acanthurus      tristis 1993 reef-associated
-## 2 Acanthuridae      Acanthurus.blochii   Acanthurus      blochii 1835 reef-associated
-## 3 Acanthuridae Acanthurus.xanthopterus   Acanthurus xanthopterus 1835 reef-associated
-## 4 Acanthuridae    Acanthurus.chirurgus   Acanthurus    chirurgus 1787 reef-associated
-## 5 Acanthuridae  Ctenochaetus.truncatus Ctenochaetus    truncatus 2001 reef-associated
-## 6 Acanthuridae   Acanthurus.dussumieri   Acanthurus   dussumieri 1835 reef-associated
-##   depth length  category
-## 1    30     25 No_crypto
-## 2    15     45 No_crypto
-## 3   100     70 No_crypto
-## 4    25     39 No_crypto
-## 5    21     16 No_crypto
-## 6   131     54 No_crypto
+##         family                  genspe        genus      species year
+## 1 Acanthuridae      Acanthurus.tristis   Acanthurus      tristis 1993
+## 2 Acanthuridae      Acanthurus.blochii   Acanthurus      blochii 1835
+## 3 Acanthuridae Acanthurus.xanthopterus   Acanthurus xanthopterus 1835
+## 4 Acanthuridae    Acanthurus.chirurgus   Acanthurus    chirurgus 1787
+## 5 Acanthuridae  Ctenochaetus.truncatus Ctenochaetus    truncatus 2001
+## 6 Acanthuridae   Acanthurus.dussumieri   Acanthurus   dussumieri 1835
+##           habitat depth length  category
+## 1 reef-associated    30     25 No_crypto
+## 2 reef-associated    15     45 No_crypto
+## 3 reef-associated   100     70 No_crypto
+## 4 reef-associated    25     39 No_crypto
+## 5 reef-associated    21     16 No_crypto
+## 6 reef-associated   131     54 No_crypto
 ```
 ]
 ---
@@ -1073,7 +1063,7 @@ p7 &lt;- ggplot(reef.fish, aes(x = year,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-84-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-80-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Using the log-scale
@@ -1098,7 +1088,7 @@ p7 &lt;- ggplot(reef.fish, aes(x = year,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-86-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-82-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Axis breaks and limits
@@ -1121,7 +1111,7 @@ p7 &lt;- ggplot(reef.fish, aes(x = length,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-88-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-84-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Labeling
@@ -1147,7 +1137,7 @@ p7 &lt;- ggplot(reef.fish, aes(x = length,
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-90-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-86-1.png)&lt;!-- --&gt;
 ]]
 ---
 ## Legends
@@ -1168,12 +1158,15 @@ p7 &lt;- ggplot(reef.fish, aes(x = length,
   annotation_logticks(sides = "b") +
   xlab("Body length (cm)") +
   ylab("Year of description") +
-  scale_color_fish_d(option = "Trimma_lantana", name = "Fish category", labels = c("Cryptobenthic", "Mobile"))
+  scale_color_fish_d(option = "Trimma_lantana",
+                     name = "Fish category",
+                     labels = c("Cryptobenthic", 
+                                "Mobile"))
 ```
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-92-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-88-1.png)&lt;!-- --&gt;
 ]]
 ---
 class: center, middle, inverse
@@ -1192,7 +1185,7 @@ p8 &lt;- p6 / p7 +
 ]
 
 .pull-right[ .center[
-![](03-ggplot_files/figure-html/unnamed-chunk-94-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-90-1.png)&lt;!-- --&gt;
 ]]
 ---
 ---
@@ -1210,7 +1203,7 @@ class: inverse, center, top
 
 ---
 class: center, top
-# Solution 3.2a 🤓
+# Solution 3.3a 🤓
 
 .pull-left[
 
@@ -1229,11 +1222,11 @@ p9 &lt;- ggplot(data = reef.fish,
 ## Warning: Removed 561 rows containing non-finite values (`stat_boxplot()`).
 ```
 
-![](03-ggplot_files/figure-html/unnamed-chunk-96-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-92-1.png)&lt;!-- --&gt;
 ]]
 ---
 class: center, top
-# Solution 3.2b 🤓
+# Solution 3.3b 🤓
 
 .pull-left[
 
@@ -1254,7 +1247,7 @@ p9 &lt;- ggplot(data = reef.fish,
 ## Warning: Removed 561 rows containing non-finite values (`stat_boxplot()`).
 ```
 
-![](03-ggplot_files/figure-html/unnamed-chunk-98-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-94-1.png)&lt;!-- --&gt;
 ]]
 ---
 class: center, top
@@ -1282,7 +1275,7 @@ p9 &lt;- ggplot(data = reef.fish,
 ## Warning: Removed 561 rows containing non-finite values (`stat_boxplot()`).
 ```
 
-![](03-ggplot_files/figure-html/unnamed-chunk-100-1.png)&lt;!-- --&gt;
+![](03-ggplot_files/figure-html/unnamed-chunk-96-1.png)&lt;!-- --&gt;
 ]]
 ---
 background-image: url("images/ggplot_meme.jpeg")
