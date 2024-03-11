@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Marine Community Ecology 2024</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Simon J. Brandl" />
+    <script src="libs/header-attrs-2.25/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Marine Community Ecology 2024
+]
+.subtitle[
+## 05-Principal Component Analysis
+]
+.author[
+### Simon J. Brandl
+]
+.institute[
+### The University of Texas at Austin
+]
+.date[
+### 2024/01/01 (updated: 2024-03-10)
+]
+
+---
+
+
+background-image: url("images/IMG_2798.JPG")
+background-size: cover
+class: center, top
+
+# Exploring communities with multivariate ordinations
+
+
+
+&lt;style type="text/css"&gt;
+
+.scrollable {
+  height: 300px;
+  overflow-y: auto;
+}
+
+
+.scrollable-auto {
+  height: 75%;
+  overflow-y: auto;
+}
+
+.remark-slide-scaler {
+    overflow-y: auto;
+}
+&lt;/style&gt;
+
+---
+# Multivariate analysis
+
+- Multivariate ordination techniques are our go-to tools to disentangle differences in community composition
+
+- these techniques include Principal Component Analyses (PCA), Principal Coordinate Analyses (PCoA), non-metric Multidimensional Scaling (nMDS), or Redundancy Analyses (RDA)
+
+- our workhorse package for many of these analyses is the [_vegan_ package](https://cran.r-project.org/web/packages/vegan/vegan.pdf) by Jari Oksanen
+
+
+```r
+#install.packages("vegan")
+library(vegan)
+```
+
+```
+## Loading required package: permute
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## This is vegan 2.6-4
+```
+---
+## Principal components analysis (PCA)
+
+.pull-left[
+- PCA is perhaps the conceptually simplest ordination, but has requirements for the nature of the data
+
+- PCA requires data to conform to the normal distribution, with all columns having deciomal data from -Inf to +Inf
+
+- a good example for this type of data are the morphological traits of herbivorous fishes we have played with previously
+]
+
+.pull-right[ .center[
+&lt;img src="images/IMG_2931.JPG" width="80%" /&gt;
+]]
+---
+### The herbivore trait dataset
+
+- the dataset contains different species of Indo-Pacific coral reef fishes, for which we have measured various morphological traits
+
+
+```r
+herbivore.morphology &lt;- read.csv(file = "data/coralreefherbivores.csv")
+head(herbivore.morphology)
+```
+
+```
+##         family      genus        species                   gen.spe       sl
+## 1 Acanthuridae Acanthurus       achilles       Acanthurus.achilles 163.6667
+## 2 Acanthuridae Acanthurus albipectoralis Acanthurus.albipectoralis 212.7300
+## 3 Acanthuridae Acanthurus   auranticavus   Acanthurus.auranticavus 216.0000
+## 4 Acanthuridae Acanthurus        blochii        Acanthurus.blochii  82.9000
+## 5 Acanthuridae Acanthurus     dussumieri     Acanthurus.dussumieri 193.7033
+## 6 Acanthuridae Acanthurus        fowleri        Acanthurus.fowleri 266.0000
+##   bodydepth snoutlength eyediameter size    schooling
+## 1 0.5543625   0.4877797   0.3507191    S     Solitary
+## 2 0.4405350   0.4402623   0.2560593    M  SmallGroups
+## 3 0.4726556   0.5386490   0.2451253    M MediumGroups
+## 4 0.5586486   0.4782217   0.3196155    M  SmallGroups
+## 5 0.5457248   0.5661867   0.2807218    L     Solitary
+## 6 0.4669521   0.5950563   0.2217376    M     Solitary
+```
+---
+### Isolating numeric data
+
+- ordinations generally require numeric data, so it's often convenient to divide your dataset into two different components: raw data and metadata
+
+- it can be helpful to set rownames for the raw data, as they will be carried forth throughout your ordination
+
+
+```r
+# make sure you have tidyverse package loaded
+library(tidyverse)
+herbivore.raw &lt;- herbivore.morphology %&gt;%
+  select(sl, bodydepth, snoutlength, eyediameter) # isolate four morphological traits
+rownames(herbivore.raw) &lt;- herbivore.morphology$gen.spe # set rownames
+head(herbivore.raw)
+```
+
+```
+##                                 sl bodydepth snoutlength eyediameter
+## Acanthurus.achilles       163.6667 0.5543625   0.4877797   0.3507191
+## Acanthurus.albipectoralis 212.7300 0.4405350   0.4402623   0.2560593
+## Acanthurus.auranticavus   216.0000 0.4726556   0.5386490   0.2451253
+## Acanthurus.blochii         82.9000 0.5586486   0.4782217   0.3196155
+## Acanthurus.dussumieri     193.7033 0.5457248   0.5661867   0.2807218
+## Acanthurus.fowleri        266.0000 0.4669521   0.5950563   0.2217376
+```
+
+```r
+herbivore.meta &lt;- herbivore.morphology %&gt;% # isolate metadata
+  select(-sl, -bodydepth, -snoutlength, -eyediameter)
+```
+---
+### Running a PCA
+
+.pull-left[
+- running a PCA in R is very simple and there are several functions from different packages, including: &lt;span style="color:orange"&gt;prcomp()&lt;/span&gt; and &lt;span style="color:orange"&gt;princomp()&lt;/span&gt; in the _stats_ package, &lt;span style="color:orange"&gt;PCA()&lt;/span&gt; in the _FactoMineR_ package, &lt;span style="color:orange"&gt;dudi.pca()&lt;/span&gt; in the _ade4_ package, or the &lt;span style="color:orange"&gt;rda()&lt;/span&gt; function in the _vegan_ package
+
+- we will use the &lt;span style="color:orange"&gt;rda()&lt;/span&gt; function, which actually runs an RDA 🥴
+
+
+```r
+herb.pca &lt;- rda(herbivore.raw, scale = F)
+# this is all it takes to run a PCA
+```
+
+- for a quick and dirty look, we can use the biplot() function
+
+- this... doesn't look great 🧐
+
+]
+
+.pull-right[
+
+
+```r
+biplot(herb.pca) 
+```
+
+![](05-PCA_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+]
+---
+### Scaling your data
+
+- the problem in the previous plot becomes very apparent when we look at the raw data
+
+
+```r
+summary(herbivore.raw)
+```
+
+```
+##        sl           bodydepth       snoutlength      eyediameter    
+##  Min.   : 62.44   Min.   :0.3294   Min.   :0.1644   Min.   :0.1344  
+##  1st Qu.:136.27   1st Qu.:0.3876   1st Qu.:0.3376   1st Qu.:0.2081  
+##  Median :190.83   Median :0.4363   Median :0.4084   Median :0.2680  
+##  Mean   :203.31   Mean   :0.4465   Mean   :0.4311   Mean   :0.2641  
+##  3rd Qu.:249.50   3rd Qu.:0.4928   3rd Qu.:0.5244   3rd Qu.:0.3093  
+##  Max.   :422.00   Max.   :0.6801   Max.   :0.7861   Max.   :0.4540
+```
+
+- while bodydepth, snoutlength, and eyediameter are ratios with means in the low decimals, standard length (SL) has a mean of 203.3
+
+- PCA considers variables with larger values to be more important, which in this case, we do not want
+
+- luckily, we can address this easily by 'scaling' the data within the PCA
+---
+### Scaled PCA
+
+.pull-left[
+- we can easily implement the scaling in the PCA itself
+
+- to do so, simply state scale = TRUE in the &lt;span style="color:orange"&gt;rda()&lt;/span&gt; function
+
+
+```r
+trait.pca &lt;- rda(herbivore.raw, scale = TRUE) # note the scale = TRUE part
+```
+]
+
+.pull-right[ .center[
+
+```r
+biplot(trait.pca) # make a very ugly plot
+```
+
+![](05-PCA_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+]]
+---
+### Understanding PCA output
+
+- to get the detailed output for your PCA, you need to call the object with the &lt;span style="color:orange"&gt;summary()&lt;/span&gt; function
+
+- note that 'species' in this example are really morphological traits, not species
+
+
+```r
+summary(trait.pca)
+```
+
+```
+## 
+## Call:
+## rda(X = herbivore.raw, scale = TRUE) 
+## 
+## Partitioning of correlations:
+##               Inertia Proportion
+## Total               4          1
+## Unconstrained       4          1
+## 
+## Eigenvalues, and their contribution to the correlations 
+## 
+## Importance of components:
+##                          PC1    PC2    PC3     PC4
+## Eigenvalue            2.2222 1.0560 0.4325 0.28917
+## Proportion Explained  0.5556 0.2640 0.1081 0.07229
+## Cumulative Proportion 0.5556 0.8196 0.9277 1.00000
+## 
+## Scaling 2 for species and site scores
+## * Species are scaled proportional to eigenvalues
+## * Sites are unscaled: weighted dispersion equal on all dimensions
+## * General scaling constant of scores:  4.415154 
+## 
+## 
+## Species scores
+## 
+##                PC1     PC2     PC3     PC4
+## sl           1.759 -1.0249  0.1802  0.8351
+## bodydepth   -1.818 -0.5856 -1.0122  0.4475
+## snoutlength -1.040 -1.8299  0.5284 -0.4063
+## eyediameter -1.830  0.6362  0.8784  0.5887
+## 
+## 
+## Site scores (weighted sums of species scores)
+## 
+##                                PC1      PC2       PC3        PC4
+## Acanthurus.achilles       -0.59009 -0.09402 -0.089155  0.5897324
+## Acanthurus.albipectoralis  0.04427 -0.05615  0.018739 -0.0338815
+## Acanthurus.auranticavus   -0.07922 -0.44214 -0.040557 -0.1887724
+## Acanthurus.blochii        -0.66748  0.06062 -0.412496 -0.1221877
+## Acanthurus.dussumieri     -0.40307 -0.52497 -0.263302  0.1264707
+## Acanthurus.fowleri         0.04036 -0.76965  0.026593 -0.1547313
+## Acanthurus.guttatus       -0.67711 -0.11372 -1.507844  0.8629317
+## Acanthurus.leucocheilus   -0.35824 -0.40379  0.491510  0.5090096
+## Acanthurus.leucopareius   -0.40143 -0.34131 -0.699282  0.3857665
+## Acanthurus.lineatus       -0.29281 -0.01287 -0.315505 -0.3125160
+## Acanthurus.maculiceps     -0.22959 -0.56503  0.105482 -0.0544137
+## Acanthurus.mata            0.08234 -0.23752  0.317355  0.1027550
+## Acanthurus.nigricans      -0.65203 -0.03150 -0.241535  0.2263905
+## Acanthurus.nigricauda     -0.28264 -0.35638  0.378647 -0.1543066
+## Acanthurus.nigrofuscus    -0.57197  0.51140  0.001765 -0.0945989
+## Acanthurus.nigroris       -0.39573 -0.05018  0.091679 -0.2004105
+## Acanthurus.nubilus        -0.42814 -0.19098  0.238032  0.4149154
+## Acanthurus.olivaceus      -0.30725 -0.08049  0.234648 -0.2441049
+## Acanthurus.pyroferus      -0.52877 -0.02388  0.024070 -0.0114931
+## Acanthurus.thompsoni      -0.40430  0.43733  0.449996  0.0998151
+## Acanthurus.triostegus     -0.44953  0.18231 -0.239421 -0.0105896
+## Acanthurus.xanthopterus    0.02662 -0.58264 -0.303564  0.2030344
+## Bolbometopon.muricatum     0.39843  0.08530 -0.290789  0.7917606
+## Calotomus.carolinus        0.21311  0.34316 -0.147919 -0.0457697
+## Calotomus.spinidens        0.19814  0.77736  0.093809 -0.7005075
+## Cetoscarus.ocellatus       0.77326 -0.51702 -0.220458  0.1258993
+## Chlorurus.bleekeri         0.30674  0.25211  0.002803 -0.4890235
+## Chlorurus.bowersi          0.21262  0.17028 -0.449639 -0.6424247
+## Chlorurus.frontalis        0.71027 -0.22217 -0.246213  0.2935432
+## Chlorurus.japanensis       0.24579  0.22414 -0.226335 -0.5117752
+## Chlorurus.microrhinos      0.86210 -0.41602 -0.367799  0.7546888
+## Ctenochaetus.binotatus    -0.72940  0.32303 -0.016261 -0.0426123
+## Ctenochaetus.flavicauda   -0.73678  0.05681 -0.273033  0.1168028
+## Ctenochaetus.hawaiiensis  -0.34815 -1.01107 -0.296618 -0.2653598
+## Ctenochaetus.marginatus   -0.33957 -0.39043 -0.212980  0.1511547
+## Ctenochaetus.striatus     -0.46525 -0.26479 -0.156355 -0.5049937
+## Ctenochaetus.strigosus    -0.55035 -0.16554 -0.484053 -0.3954503
+## Ctenochaetus.tominiensis  -0.44060 -0.06252 -0.129098 -0.7827423
+## Hipposcarus.longiceps      0.76071 -0.41618 -0.347018  0.4578787
+## Kyphosus.vaigiensis        0.51785  0.43631 -1.236179  0.8823674
+## Leptoscarus.vaigiensis     0.53665  0.46407  0.118355 -0.4009312
+## Naso.annulatus            -0.20843 -0.05930  0.981839  0.0142078
+## Naso.brachycentron         0.50038 -0.96904  0.548961  0.7102298
+## Naso.brevirostris         -0.04864 -0.25582  0.796832  0.0101698
+## Naso.caesius               0.46471 -0.57466  0.713972  0.3067222
+## Naso.hexacanthus           0.22392 -0.32005  1.068267 -0.2687188
+## Naso.lituratus            -0.36494 -0.31649  0.343125 -0.6318960
+## Naso.lopezi                0.46857 -0.41919  1.126511  0.3090751
+## Naso.thynnoides            0.13544  0.26161  0.888108 -0.5112808
+## Naso.tuberosus             0.38224 -0.57133  0.807059  0.3894905
+## Naso.unicornis             0.17527 -1.01195  0.354396  0.0007094
+## Naso.vlamingii             0.06803 -0.49375  1.046296  0.1178189
+## Paracanthurus.hepatus     -0.45279 -0.09965  0.033935 -0.5597031
+## Scarus.altipinnis          0.35143 -0.39241 -0.199066 -0.2560600
+## Scarus.chameleon           0.38680  0.34830 -0.346976 -0.5320194
+## Scarus.dimidiatus          0.37671  0.33684 -0.136750 -0.7106512
+## Scarus.festivus            0.46897  0.29369 -0.362476  0.0131449
+## Scarus.flavipectoralis     0.42304  0.46107 -0.207955 -0.6825314
+## Scarus.forsteni            0.71036  0.03908 -0.180145 -0.0838634
+## Scarus.frenatus            0.55489  0.14839 -0.170926 -0.3031586
+## Scarus.ghobban             0.90571 -0.47803 -0.321242  0.5298962
+## Scarus.globiceps           0.26149  0.31797 -0.249218 -0.4387843
+## Scarus.hypselopterus       0.41952  0.54372 -0.096743 -0.6304465
+## Scarus.longipinnis         0.36602  0.28952  0.097438 -0.0850843
+## Scarus.niger               0.29479  0.18687 -0.377934 -0.0614928
+## Scarus.oviceps             0.37202  0.23661 -0.048986 -0.6413751
+## Scarus.prasiognathos       0.46327  0.05923 -0.344178 -0.1588399
+## Scarus.psittacus           0.36768  0.14132 -0.405383 -0.3211488
+## Scarus.quoyi               0.12141  0.44438 -0.283007 -0.2482424
+## Scarus.rivulatus           0.36424  0.11519 -0.580447  0.1272058
+## Scarus.rubroviolaceus      0.77326 -0.19970  0.003833  0.5277776
+## Scarus.schlegeli           0.36037  0.30307 -0.364490 -0.2846191
+## Scarus.spinus              0.14706  0.25887 -0.154275 -0.2791249
+## Scarus.tricolor            0.59090  0.22263 -0.132352 -0.2798447
+## Scarus.xanthopleura        0.76254 -0.19020 -0.116586  0.3796471
+## Siganus.argenteus          0.33012  0.31957  0.313059 -0.1880736
+## Siganus.canaliculatus     -0.06703  0.74317  0.538143 -0.3719014
+## Siganus.corallinus        -0.15723  0.15778 -0.039191  0.0161677
+## Siganus.doliatus          -0.37664  0.67183 -0.084747  0.4352190
+## Siganus.fuscescens        -0.16941  0.70826  0.420799  0.2039228
+## Siganus.guttatus          -0.73834  0.95960  0.070776  1.3644983
+## Siganus.javus             -0.30538  0.55240 -0.175225  0.2490667
+## Siganus.lineatus           0.13414  0.26761  0.059745  0.6888101
+## Siganus.niger             -0.43134  0.36408  0.403421  0.1822651
+## Siganus.puellus           -0.01803  0.40140  0.351166 -0.1496594
+## Siganus.punctatissimus    -0.06968  0.39442  0.237774  1.2352482
+## Siganus.punctatus         -0.07298  0.22149  0.076902  0.3729415
+## Siganus.randalli          -0.10858  0.84320  0.851454  0.7242228
+## Siganus.spinus            -0.17342  1.13900  0.955576 -0.0454733
+## Siganus.stellatus          0.09495 -0.07468 -0.252618  0.3016423
+## Siganus.vermiculatus      -0.43701  0.53880 -0.290411  0.2296388
+## Siganus.vulpinus          -0.29923 -0.19323  0.140271 -0.3530714
+## Zebrasoma.flavescens      -0.86588 -0.44127 -0.022173  0.1095896
+## Zebrasoma.rostratum       -0.47135 -1.25897 -0.320270 -1.2320456
+## Zebrasoma.scopas          -0.85067 -0.47815 -0.638066 -0.1634908
+## Zebrasoma.velifer         -0.73304 -0.47436  0.292103  0.1919522
+```
+---
+class: center, middle
+&lt;img src="images/borat.jpeg" width="60%" /&gt;
+---
+class: inverse, center, top
+
+# Exercise 5.1 🏋️‍♀️
+
+## Read in the fishcoms_lizardisland.csv file and perform the following:
+
+
+### a) Filter it to only include the Family Pomacentridae, then summarize the abundance for each site and exposure regime
+
+### b) Spread the dataset based on species (with missing values replaced with 0s), and separate it into the abundance data and metadata
+
+### c) Run a PCA on the abundance data with scale = TRUE and call its summary
+
+---
+class: center, top
+# Solution 5.1a 🤓
+
+
+```r
+lizardfish &lt;- read.csv(file =  "data/fishcoms_lizardisland.csv") %&gt;%
+  filter(Family == "Pomacentridae") %&gt;%
+  group_by(Site, Exposure, species) %&gt;%
+  summarize(abundance = sum(abundance))
+```
+
+```
+## `summarise()` has grouped output by 'Site', 'Exposure'. You can override using
+## the `.groups` argument.
+```
+---
+class: center, top
+# Solution 5.1b 🤓
+
+
+```r
+lizardfish.wide &lt;- lizardfish %&gt;%
+  spread(key = species, value = abundance, fill = 0)
+
+lfish.raw &lt;- lizardfish.wide[-c(1:2)]
+lfish.meta &lt;- lizardfish.wide[c(1:2)]
+```
+---
+class: center, top
+# Solution 5.1c 🤓
+
+
+```r
+lfish.pca &lt;- rda(lfish.raw, scale = TRUE)
+summary(lfish.pca)
+```
+
+```
+## 
+## Call:
+## rda(X = lfish.raw, scale = TRUE) 
+## 
+## Partitioning of correlations:
+##               Inertia Proportion
+## Total              55          1
+## Unconstrained      55          1
+## 
+## Eigenvalues, and their contribution to the correlations 
+## 
+## Importance of components:
+##                           PC1    PC2    PC3     PC4     PC5     PC6     PC7
+## Eigenvalue            11.9775 8.5486 6.1300 5.24090 4.55776 3.86037 3.44810
+## Proportion Explained   0.2178 0.1554 0.1115 0.09529 0.08287 0.07019 0.06269
+## Cumulative Proportion  0.2178 0.3732 0.4847 0.57995 0.66281 0.73300 0.79570
+##                           PC8     PC9    PC10    PC11    PC12    PC13
+## Eigenvalue            2.72451 2.68263 2.45025 1.40725 1.14087 0.83126
+## Proportion Explained  0.04954 0.04878 0.04455 0.02559 0.02074 0.01511
+## Cumulative Proportion 0.84523 0.89401 0.93856 0.96414 0.98489 1.00000
+## 
+## Scaling 2 for species and site scores
+## * Species are scaled proportional to eigenvalues
+## * Sites are unscaled: weighted dispersion equal on all dimensions
+## * General scaling constant of scores:  5.171023 
+## 
+## 
+## Species scores
+## 
+##               PC1      PC2       PC3       PC4       PC5       PC6
+## abu.sexs -0.28419 -0.26752 -0.059225  0.307390  0.337479  0.033509
+## abu.whit  0.39862 -0.39324 -0.215994  0.230512 -0.175736 -0.020574
+## acn.poly  0.29575 -0.29428  0.156874 -0.444956  0.061630 -0.126857
+## amb.aure  0.17242 -0.05354 -0.041495 -0.459242  0.072075  0.307651
+## amb.cura -0.50387 -0.42986 -0.024245 -0.011561  0.127535  0.012262
+## amb.leuc  0.24375 -0.23786  0.136541 -0.028162 -0.097926  0.373732
+## amp.akin  0.08714  0.24320 -0.259432 -0.352502 -0.110470  0.282233
+## amp.clar -0.07053  0.49040 -0.282152  0.076162 -0.170052 -0.106559
+## amp.mela -0.01347  0.02095  0.515011  0.073951 -0.271962  0.072117
+## amp.peri  0.10372 -0.06009  0.176475 -0.009064  0.273628 -0.125688
+## chr.alis -0.32174 -0.13858 -0.158218 -0.315366 -0.252461 -0.358979
+## chr.lepi  0.12845  0.39671 -0.196386  0.206075  0.178960 -0.244934
+## chr.marg  0.14690  0.14568  0.076212  0.045410  0.463959 -0.204090
+## chr.tern -0.08762  0.15894 -0.162852 -0.187699 -0.205306  0.396930
+## chr.viri -0.31372 -0.17712 -0.220996 -0.379202 -0.259790 -0.110179
+## chr.webe  0.41034 -0.36908 -0.229689  0.277514 -0.176346 -0.071793
+## chr.xant  0.33785 -0.36208 -0.225573  0.338710 -0.194370 -0.021957
+## chy.cyan  0.33785 -0.36208 -0.225573  0.338710 -0.194370 -0.021957
+## chy.flav  0.17663 -0.03738 -0.048634 -0.456347  0.078587  0.303659
+## chy.rex   0.37729 -0.25346  0.158128 -0.084928 -0.153207 -0.120968
+## chy.roll -0.46780 -0.08951 -0.085420  0.240278  0.193017  0.220226
+## chy.talb  0.48315 -0.33436 -0.156873  0.131655 -0.021849 -0.034676
+## das.arua -0.14115  0.11983  0.468754  0.088166 -0.286340  0.109579
+## das.reti  0.26936  0.22029  0.025710 -0.132111  0.294194 -0.016097
+## das.trim  0.16418  0.21857 -0.081942  0.037291  0.364127 -0.167839
+## dis.mela -0.44746 -0.21703  0.380647  0.195615  0.086775  0.073649
+## dis.pers -0.33768 -0.01578  0.455202  0.014191 -0.318797  0.057016
+## dis.pros -0.61661 -0.24269  0.009592  0.086497  0.096826  0.019691
+## dis.pseu -0.32658 -0.15982  0.159176 -0.183557 -0.317450 -0.246025
+## hgy.plag -0.58366 -0.30691 -0.087950  0.065793  0.151243  0.006203
+## neg.mela -0.21683  0.21443 -0.394286 -0.128747 -0.325971 -0.177912
+## neg.nigr -0.07142 -0.48493  0.326830 -0.127779  0.069717 -0.230511
+## neo.azys -0.27253 -0.36310 -0.159683 -0.391081  0.010686  0.083854
+## neo.cyan -0.05513  0.37283 -0.150648  0.154607 -0.098516 -0.161079
+## pgy.dick  0.33785 -0.36208 -0.225573  0.338710 -0.194370 -0.021957
+## pgy.lacr  0.25495 -0.14912  0.542489  0.072325 -0.117476 -0.010212
+## pom.adel -0.51543 -0.03938 -0.186250 -0.073550 -0.225056  0.102696
+## pom.ambo -0.03098  0.42103  0.424132  0.124514 -0.084066  0.002887
+## pom.bank  0.25651 -0.17142  0.157411 -0.231577  0.054708 -0.264610
+## pom.brac  0.46792 -0.28082 -0.094161  0.063335 -0.147129  0.360747
+## pom.chry  0.04138  0.38423  0.228579  0.104038 -0.229685 -0.165112
+## pom.coel  0.31375  0.08344  0.058390 -0.389115  0.239269 -0.023073
+## pom.gram -0.51409 -0.33874 -0.051160  0.128472  0.195373 -0.024673
+## pom.lepi  0.46488 -0.32997 -0.005540  0.127255 -0.086308 -0.193079
+## pom.molu -0.47077 -0.27995 -0.160364  0.113964  0.078918  0.181714
+## pom.naga  0.05716  0.57896 -0.227224  0.102932 -0.175195 -0.060764
+## pom.pavo -0.01347  0.02095  0.515011  0.073951 -0.271962  0.072117
+## pom.phil  0.10372 -0.06009  0.176475 -0.009064  0.273628 -0.125688
+## pom.vaiu  0.20457 -0.14456  0.115550 -0.202010  0.061314 -0.295638
+## pom.ward -0.26503 -0.25922 -0.190424 -0.278866 -0.270421 -0.359023
+## pre.biac -0.49335  0.12984 -0.104803  0.074152 -0.153793 -0.147121
+## ste.apic  0.46126 -0.35932  0.062863 -0.222298 -0.004796  0.030094
+## ste.fasc -0.01405  0.12662  0.242576  0.106959 -0.072540  0.031099
+## ste.livi -0.09204 -0.01065 -0.065753  0.074514  0.039723  0.367842
+## ste.nigr -0.58723 -0.28640  0.081650  0.039123  0.067851 -0.110306
+## 
+## 
+## Site scores (weighted sums of species scores)
+## 
+##            PC1      PC2     PC3      PC4     PC5     PC6
+## sit1  -0.93429  1.14681 -1.3318 -0.48051 -1.3949  0.8130
+## sit2  -2.84456 -1.76235  0.1020  1.50702  2.1676  0.5541
+## sit3  -0.09629  0.14975  3.6805  0.52848 -1.9436  0.5154
+## sit4   1.46195 -1.03306  0.8258 -1.44365  0.4382 -2.1128
+## sit5   0.68520  1.84393 -0.5211  0.50571  2.5496 -1.0835
+## sit6   2.41440 -2.58755 -1.6120  2.42056 -1.3891 -0.1569
+## sit7   1.23222 -0.38260 -0.2965 -3.28194  0.5151  2.1986
+## sit8  -0.65773 -0.07614 -0.4699  0.53251  0.2839  2.6288
+## sit9   0.51828  0.49694 -0.5933  0.10762  0.2692  0.6831
+## sit10 -2.54240 -1.35673 -0.8371 -1.76191 -1.4142 -2.2513
+## sit11  0.74122 -0.42939  1.2612 -0.06478  1.9555 -0.8982
+## sit12 -0.13795  2.79377 -1.0600  0.95696 -0.8849 -1.2943
+## sit13  0.26033  0.29175 -0.8810 -0.29045 -0.6340  0.1817
+## sit14 -0.10038  0.90488  1.7335  0.76438 -0.5184  0.2222
+```
+---
+## Visualizing PCAs
+
+- R has an out-of-the-box plotting function that gives you a quick overview: the &lt;span style="color:orange"&gt;biplot()&lt;/span&gt; function
+
+- those plots are ugly, but they give you a quick first glance as to whether it looks half decent
+
+
+```r
+biplot(lfish.pca)
+```
+
+![](05-PCA_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+---
+### Screeplots
+
+- one good way of quickly visualizing how much variation is explained by each axis is the &lt;span style="color:orange"&gt;screeplot()&lt;/span&gt; function
+
+
+```r
+screeplot(lfish.pca, type = "line") # type = specifies whether you want bars or lines
+```
+
+![](05-PCA_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+---
+### Biplots: reloaded
+
+- the aesthetics of the biplotcan be improved slightly
+
+
+```r
+# make the basic plot
+biplot(lfish.pca,
+       type = c("text", "points"),
+       col = c("black", "grey"))
+# add convex hulls around the points by family
+ordihull(lfish.pca,
+         group = lfish.meta$Exposure,
+         col = c("blue", "goldenrod2", "forestgreen", "orchid"))
+# add legend
+exposures &lt;- sort(unique(lfish.meta$Exposure))
+legend("topright",
+       col = c("blue", "goldenrod2", "forestgreen", "orchid"), 
+       lty = 1,
+       legend = exposures)
+```
+
+![](05-PCA_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+---
+### Using ggplot2
+
+-  we can use ggplot, but this requires a bit of tinkering: we have to take the scenic route and extract the data ourselves
+
+- there are two main layers in the plot: the loadings (our species) and the site scores
+
+- we can access both of these through the summary() object
+
+
+```r
+sum.lfish.pca &lt;- summary(lfish.pca)
+```
+---
+### Extract summary outputs
+
+- simply call the respective objects
+
+
+```r
+site.scores &lt;- as.data.frame(sum.lfish.pca$sites) %&gt;% # get the site scores into a data.frame
+  bind_cols(lfish.meta) # combine it with the meta-data
+
+head(site.scores)
+```
+
+```
+##              PC1        PC2        PC3        PC4        PC5        PC6
+## sit1 -0.93428885  1.1468085 -1.3318275 -0.4805092 -1.3948564  0.8130396
+## sit2 -2.84455673 -1.7623529  0.1019847  1.5070216  2.1675739  0.5541368
+## sit3 -0.09629497  0.1497482  3.6804891  0.5284837 -1.9435562  0.5153788
+## sit4  1.46194921 -1.0330569  0.8257666 -1.4436515  0.4381775 -2.1127524
+## sit5  0.68520238  1.8439276 -0.5211412  0.5057066  2.5496164 -1.0835098
+## sit6  2.41440360 -2.5875519 -1.6120391  2.4205636 -1.3890501 -0.1569157
+##             Site  Exposure
+## sit1  Big Vickis Sheltered
+## sit2 Blue Lagoon    Lagoon
+## sit3  Bommie Bay   Oblique
+## sit4     Coconut   Exposed
+## sit5     Granite Sheltered
+## sit6       LTMP1   Exposed
+```
+
+```r
+species.scores &lt;- as.data.frame(sum.lfish.pca$species) %&gt;%
+  mutate(species = rownames(.)) # need a new species column
+
+head(species.scores)
+```
+
+```
+##                 PC1         PC2         PC3         PC4         PC5         PC6
+## abu.sexs -0.2841933 -0.26752383 -0.05922509  0.30739032  0.33747950  0.03350887
+## abu.whit  0.3986195 -0.39324233 -0.21599398  0.23051182 -0.17573575 -0.02057440
+## acn.poly  0.2957463 -0.29428240  0.15687366 -0.44495622  0.06163024 -0.12685689
+## amb.aure  0.1724244 -0.05353681 -0.04149524 -0.45924155  0.07207522  0.30765139
+## amb.cura -0.5038660 -0.42985734 -0.02424451 -0.01156085  0.12753466  0.01226200
+## amb.leuc  0.2437516 -0.23785582  0.13654146 -0.02816151 -0.09792634  0.37373152
+##           species
+## abu.sexs abu.sexs
+## abu.whit abu.whit
+## acn.poly acn.poly
+## amb.aure amb.aure
+## amb.cura amb.cura
+## amb.leuc amb.leuc
+```
+---
+### Plot data
+
+.pull-left[
+- now you can simply plot your two datasets, but note that you have to re-specify the different datasets
+
+
+```r
+pca.ggplot &lt;- ggplot() +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_text(data = species.scores, aes(x = PC1, y = PC2, label = species)) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+
+- not so bad, except there's a big old mess of species in the middle
+]
+
+.pull-right[ .center[
+![](05-PCA_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+]]
+---
+### Parsing out loadings
+
+- with so many loadings, you may want to reduce the number of species to display
+
+- you can simply select the species that are most characteristic for PC1 or PC2
+
+- an easy way to do this is to filter by the _absolute_ value on PC1 and PC2 
+
+
+```r
+species.scores.filt &lt;- species.scores %&gt;%
+  filter(abs(PC1) &gt; 0.5 | abs(PC2) &gt; 0.5)
+```
+---
+### Revised plot
+
+.pull-left[
+- to further help with the vectors, we can use the 'repel' function from the _ggrepel_ package
+
+
+```r
+library(ggrepel)
+pca.ggplot &lt;- ggplot() +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_text_repel(data = species.scores.filt, aes(x = PC1, y = PC2, label = species)) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+]
+
+.pull-right[ .pull-center[
+![](05-PCA_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+]]
+---
+### Better labels
+
+.pull-left[
+- we can improve the labels with segments and the geom_label_repel function
+
+
+```r
+library(ggrepel)
+pca.ggplot &lt;- ggplot() +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_segment(data = species.scores.filt, aes(x = 0, xend = PC1, y = 0, yend = PC2), color = "grey") +
+  geom_label_repel(data = species.scores.filt, aes(x = PC1, y = PC2, label = species), size = 3) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+]
+
+.pull-right[ .pull-center[
+![](05-PCA_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
+]]
+---
+### Polygons
+
+- finally, we can add some polygons around our groups
+
+- the &lt;span style="color:orange"&gt;slice()&lt;/span&gt; function helps us here, but we have to create a new dataset for it
+
+
+```r
+hulls &lt;- site.scores %&gt;%
+  group_by(Exposure) %&gt;%
+  slice(chull(PC1, PC2))
+hulls
+```
+
+```
+## # A tibble: 13 × 8
+## # Groups:   Exposure [4]
+##        PC1     PC2    PC3     PC4    PC5    PC6 Site            Exposure 
+##      &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;    
+##  1  2.41   -2.59   -1.61   2.42   -1.39  -0.157 LTMP1           Exposed  
+##  2  0.741  -0.429   1.26  -0.0648  1.96  -0.898 Pidgin Point    Exposed  
+##  3  1.23   -0.383  -0.297 -3.28    0.515  2.20  LTMP3           Exposed  
+##  4 -2.84   -1.76    0.102  1.51    2.17   0.554 Blue Lagoon     Lagoon   
+##  5 -2.54   -1.36   -0.837 -1.76   -1.41  -2.25  Palfrey Lagoon  Lagoon   
+##  6 -0.658  -0.0761 -0.470  0.533   0.284  2.63  Monkey's Butt   Lagoon   
+##  7  0.260   0.292  -0.881 -0.290  -0.634  0.182 Steve's Gully   Oblique  
+##  8 -0.0963  0.150   3.68   0.528  -1.94   0.515 Bommie Bay      Oblique  
+##  9 -0.100   0.905   1.73   0.764  -0.518  0.222 Washing Machine Oblique  
+## 10  0.518   0.497  -0.593  0.108   0.269  0.683 North Reef      Sheltered
+## 11 -0.934   1.15   -1.33  -0.481  -1.39   0.813 Big Vickis      Sheltered
+## 12 -0.138   2.79   -1.06   0.957  -0.885 -1.29  Resort          Sheltered
+## 13  0.685   1.84   -0.521  0.506   2.55  -1.08  Granite         Sheltered
+```
+---
+### Plotting polygons
+
+
+.pull-left[
+- geom_polygon is your friend, but it needs a grouping argument
+
+
+```r
+pca.ggplot &lt;- ggplot() +
+  geom_polygon(data = hulls, aes(x = PC1, y = PC2, group = Exposure, fill = Exposure), alpha = 0.5) +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_segment(data = species.scores.filt, aes(x = 0, xend = PC1, y = 0, yend = PC2), color = "grey") +
+  geom_label_repel(data = species.scores.filt, aes(x = PC1, y = PC2, label = species), size = 3) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+]
+
+.pull-right[ .pull-center[
+![](05-PCA_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+]]
+---
+class: center, middle
+&lt;img src="images/IMG_2931.JPG" width="60%" /&gt;
+---
+## Beyond simple PCA
+
+- remember how PCA should only be used for certain types of data?
+
+- it's not really appropriate for the type we just used - we can do better
+
+- for abundance data, the Hellinger transformation is great, which is implemented using the &lt;span style="color:orange"&gt;decostand()&lt;/span&gt; function
+
+
+```r
+lizard.hell &lt;- decostand(lfish.raw, method = "hellinger")
+head(lizard.hell)
+```
+
+```
+##     abu.sexs   abu.whit  acn.poly amb.aure   amb.cura   amb.leuc   amp.akin
+## 1 0.00000000 0.04563166 0.1094209        0 0.17225576 0.06036502 0.03951818
+## 2 0.04161252 0.00000000 0.1230915        0 0.36455512 0.02080626 0.00000000
+## 3 0.00000000 0.00000000 0.2353861        0 0.22569523 0.13699181 0.00000000
+## 4 0.00000000 0.18284527 0.3667049        0 0.21805571 0.09827638 0.00000000
+## 5 0.03634562 0.00000000 0.1090369        0 0.03634562 0.00000000 0.00000000
+## 6 0.02358333 0.38607578 0.2001112        0 0.17330139 0.10279736 0.00000000
+##     amp.clar   amp.mela amp.peri   chr.alis   chr.lepi   chr.marg   chr.tern
+## 1 0.03951818 0.00000000        0 0.07903636 0.00000000 0.00000000 0.38920894
+## 2 0.00000000 0.00000000        0 0.00000000 0.00000000 0.00000000 0.02942449
+## 3 0.00000000 0.05978813        0 0.00000000 0.00000000 0.00000000 0.13369032
+## 4 0.00000000 0.00000000        0 0.08619409 0.00000000 0.00000000 0.00000000
+## 5 0.03634562 0.00000000        0 0.00000000 0.10903685 0.03634562 0.05140047
+## 6 0.00000000 0.00000000        0 0.00000000 0.03335187 0.00000000 0.08503091
+##     chr.viri   chr.webe   chr.xant   chy.cyan   chy.flav    chy.rex   chy.roll
+## 1 0.20279155 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.07903636
+## 2 0.06579517 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.22019275
+## 3 0.11577921 0.00000000 0.00000000 0.00000000 0.00000000 0.04227659 0.10355607
+## 4 0.00000000 0.11238334 0.00000000 0.00000000 0.00000000 0.04721045 0.07211515
+## 5 0.06295246 0.05140047 0.00000000 0.00000000 0.03634562 0.00000000 0.14538247
+## 6 0.11553426 0.21355615 0.06239563 0.04084753 0.00000000 0.03335187 0.06239563
+##     chy.talb   das.arua  das.reti   das.trim   dis.mela   dis.pers   dis.pros
+## 1 0.00000000 0.09679938 0.1020355 0.00000000 0.03226646 0.03226646 0.06036502
+## 2 0.00000000 0.05504819 0.0000000 0.00000000 0.07207500 0.04161252 0.09978332
+## 3 0.00000000 0.17685567 0.1232564 0.00000000 0.08455318 0.10355607 0.07322520
+## 4 0.06676565 0.04721045 0.1907987 0.03854717 0.02725696 0.00000000 0.02725696
+## 5 0.03634562 0.03634562 0.4794316 0.14076597 0.00000000 0.00000000 0.03634562
+## 6 0.08169506 0.00000000 0.1131017 0.02358333 0.00000000 0.00000000 0.00000000
+##     dis.pseu   hgy.plag   neg.mela   neg.nigr  neo.azys   neo.cyan   pgy.dick
+## 1 0.00000000 0.05101775 0.04563166 0.00000000 0.2200279 0.00000000 0.00000000
+## 2 0.00000000 0.13322506 0.00000000 0.10192944 0.2514030 0.02942449 0.00000000
+## 3 0.05978813 0.00000000 0.00000000 0.11957626 0.2296207 0.00000000 0.00000000
+## 4 0.00000000 0.00000000 0.00000000 0.14163134 0.2542360 0.00000000 0.00000000
+## 5 0.00000000 0.00000000 0.03634562 0.00000000 0.2298699 0.00000000 0.00000000
+## 6 0.00000000 0.00000000 0.02358333 0.08503091 0.2028715 0.00000000 0.03335187
+##     pgy.lacr   pom.adel  pom.ambo   pom.bank  pom.brac   pom.chry   pom.coel
+## 1 0.04563166 0.33063282 0.2488913 0.00000000 0.2115853 0.03951818 0.06844750
+## 2 0.00000000 0.20806259 0.1995666 0.00000000 0.1638287 0.02942449 0.00000000
+## 3 0.32196892 0.19373568 0.4087952 0.02989406 0.3781333 0.16644310 0.11957626
+## 4 0.15176035 0.09827638 0.3022943 0.10902785 0.3393465 0.09442089 0.24226519
+## 5 0.00000000 0.09616147 0.3964839 0.00000000 0.2838684 0.10280093 0.32508509
+## 6 0.17489867 0.06239563 0.1247913 0.02358333 0.4751910 0.02358333 0.04716666
+##     pom.gram   pom.lepi  pom.molu   pom.naga   pom.pavo pom.phil   pom.vaiu
+## 1 0.00000000 0.10455528 0.6147586 0.18675564 0.00000000        0 0.00000000
+## 2 0.19406787 0.00000000 0.7222500 0.02942449 0.00000000        0 0.00000000
+## 3 0.02989406 0.07322520 0.3804893 0.13030520 0.05978813        0 0.00000000
+## 4 0.00000000 0.33825002 0.3259459 0.11238334 0.00000000        0 0.05451393
+## 5 0.00000000 0.09616147 0.4406672 0.24917300 0.00000000        0 0.00000000
+## 6 0.05776713 0.32847780 0.4251546 0.09433333 0.00000000        0 0.00000000
+##     pom.ward   pre.biac  ste.apic ste.fasc ste.livi   ste.nigr
+## 1 0.12496746 0.03226646 0.0000000        0        0 0.03226646
+## 2 0.06241878 0.02942449 0.0360375        0        0 0.08322504
+## 3 0.06684516 0.00000000 0.1195763        0        0 0.05177804
+## 4 0.16802321 0.00000000 0.1828453        0        0 0.00000000
+## 5 0.05140047 0.00000000 0.0000000        0        0 0.00000000
+## 6 0.12254259 0.00000000 0.1633901        0        0 0.00000000
+```
+---
+### Hellinger transformed data
+
+- we can run the same PCA as before, but with Hellinger transformed data
+
+
+```r
+lfish.pca.hell &lt;- summary(rda(lizard.hell, scale = T))
+
+lizard.scores &lt;- as.data.frame(lfish.pca.hell$sites) %&gt;%
+  bind_cols(lfish.meta)
+
+lizard.hulls &lt;- lizard.scores %&gt;%
+  group_by(Exposure) %&gt;%
+  slice(chull(PC1, PC2))
+
+lizard.loadings &lt;- as.data.frame(lfish.pca.hell$species) %&gt;%
+  mutate(species = rownames(.)) %&gt;%
+  filter(abs(PC1) &gt; 0.5 | abs(PC2) &gt; 0.5)
+```
+---
+### Plot the PCA
+
+.pull-left[
+
+```r
+lizard.plot &lt;- ggplot() +
+  geom_point(data = lizard.scores, 
+             aes(x = PC1, y = PC2, color = Exposure), 
+             size = 2) +
+  geom_polygon(data = lizard.hulls, 
+               aes(x = PC1, PC2, fill = Exposure), 
+               alpha = 0.5) +
+  geom_segment(data = lizard.loadings, 
+               aes(x = 0, xend = PC1, y = 0, yend = PC2), 
+               color = "grey") +
+  geom_label_repel(data = lizard.loadings, 
+                   aes(x = PC1, y = PC2, label = species), 
+                   size = 3) +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  theme_bw() +
+  xlab("PC1 (21.8%)") +
+  ylab("PC2 (17.8%)") +
+  ggtitle("Hellinger transformed PCA, scale = T")
+```
+]
+
+.pull-right[ .center[
+![](05-PCA_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;
+]]
+---
+### Unscaled PCA
+
+- if we assume that actual abundances are important infromation, we may choose to run the PCA without the normalization
+
+
+```r
+lfish.pca.hell &lt;- summary(rda(lizard.hell, scale = F)) # note scale = F
+
+lizard.scores &lt;- as.data.frame(lfish.pca.hell$sites) %&gt;%
+  bind_cols(lfish.meta)
+
+lizard.hulls &lt;- lizard.scores %&gt;%
+  group_by(Exposure) %&gt;%
+  slice(chull(PC1, PC2))
+
+lizard.loadings &lt;- as.data.frame(lfish.pca.hell$species) %&gt;%
+  mutate(species = rownames(.)) %&gt;%
+  filter(abs(PC1) &gt; 0.1 | abs(PC2) &gt; 0.1)
+```
+---
+### Plot the PCA
+
+.pull-left[
+
+```r
+lizard.plot &lt;- ggplot() +
+  geom_point(data = lizard.scores, 
+             aes(x = PC1, y = PC2, color = Exposure), 
+             size = 2) +
+  geom_polygon(data = lizard.hulls, 
+               aes(x = PC1, PC2, fill = Exposure), 
+               alpha = 0.5) +
+  geom_segment(data = lizard.loadings, 
+               aes(x = 0, xend = PC1, y = 0, yend = PC2), 
+               color = "grey") +
+  geom_label_repel(data = lizard.loadings, 
+                   aes(x = PC1, y = PC2, label = species), 
+                   size = 3) +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  theme_bw() +
+  xlab("PC1 (21.8%)") +
+  ylab("PC2 (17.8%)") +
+  ggtitle("Hellinger transformed PCA, scale = F")
+```
+]
+
+.pull-right[ .center[
+![](05-PCA_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;
+]]
+---
+### Distance-based ordination
+
+- we can also move beyond Euclidean distances by implementing a PCoA or nMDS
+
+- nMDS works with the &lt;span style="color:orange"&gt;metaMDS()&lt;/span&gt; function
+
+
+```r
+lizard.mds &lt;- metaMDS(comm = lfish.raw, k = 2, trymax = 1000, distance = "bray")
+```
+
+```
+## Square root transformation
+## Wisconsin double standardization
+## Run 0 stress 0.09169344 
+## Run 1 stress 0.1796301 
+## Run 2 stress 0.09169345 
+## ... Procrustes: rmse 1.845801e-05  max resid 2.7702e-05 
+## ... Similar to previous best
+## Run 3 stress 0.09169344 
+## ... New best solution
+## ... Procrustes: rmse 1.048891e-05  max resid 2.835689e-05 
+## ... Similar to previous best
+## Run 4 stress 0.1206023 
+## Run 5 stress 0.1206023 
+## Run 6 stress 0.09169344 
+## ... New best solution
+## ... Procrustes: rmse 1.113205e-05  max resid 3.052324e-05 
+## ... Similar to previous best
+## Run 7 stress 0.09169345 
+## ... Procrustes: rmse 4.523458e-05  max resid 0.0001247062 
+## ... Similar to previous best
+## Run 8 stress 0.09169344 
+## ... Procrustes: rmse 2.139453e-05  max resid 5.902227e-05 
+## ... Similar to previous best
+## Run 9 stress 0.1718319 
+## Run 10 stress 0.09169344 
+## ... Procrustes: rmse 3.35609e-06  max resid 8.852263e-06 
+## ... Similar to previous best
+## Run 11 stress 0.1743695 
+## Run 12 stress 0.1206023 
+## Run 13 stress 0.1720132 
+## Run 14 stress 0.2484973 
+## Run 15 stress 0.1720133 
+## Run 16 stress 0.2835456 
+## Run 17 stress 0.09169344 
+## ... Procrustes: rmse 1.053962e-05  max resid 2.810131e-05 
+## ... Similar to previous best
+## Run 18 stress 0.1743697 
+## Run 19 stress 0.09169344 
+## ... Procrustes: rmse 2.18278e-05  max resid 5.960933e-05 
+## ... Similar to previous best
+## Run 20 stress 0.1206023 
+## *** Best solution repeated 6 times
+```
+
+```r
+lizard.mds
+```
+
+```
+## 
+## Call:
+## metaMDS(comm = lfish.raw, distance = "bray", k = 2, trymax = 1000) 
+## 
+## global Multidimensional Scaling using monoMDS
+## 
+## Data:     wisconsin(sqrt(lfish.raw)) 
+## Distance: bray 
+## 
+## Dimensions: 2 
+## Stress:     0.09169344 
+## Stress type 1, weak ties
+## Best solution was repeated 6 times in 20 tries
+## The best solution was from try 6 (random start)
+## Scaling: centring, PC rotation, halfchange scaling 
+## Species: expanded scores based on 'wisconsin(sqrt(lfish.raw))'
+```
+
+```r
+stressplot(lizard.mds)
+```
+
+![](05-PCA_files/figure-html/unnamed-chunk-39-1.png)&lt;!-- --&gt;
+---
+### Plotting nMDS
+
+- the principle is the exact same, but the names are different
+
+
+```r
+lizard.scores &lt;- as.data.frame(lizard.mds$points) %&gt;%
+  bind_cols(lfish.meta)
+
+lizard.hulls &lt;- lizard.scores %&gt;%
+  group_by(Exposure) %&gt;%
+  slice(chull(MDS1, MDS2))
+
+lizard.loadings &lt;- as.data.frame(lizard.mds$species) %&gt;%
+  mutate(species = rownames(.)) %&gt;%
+  filter(abs(MDS1) &gt; 0.5 | abs(MDS2) &gt; 0.5)
+```
+---
+### Plot the nMDS
+
+.pull-left[
+
+```r
+lizard.plot &lt;- ggplot() +
+  geom_point(data = lizard.scores, 
+             aes(x = MDS1, y = MDS2, color = Exposure), 
+             size = 2) +
+  geom_polygon(data = lizard.hulls, 
+               aes(x = MDS1, MDS2, fill = Exposure), 
+               alpha = 0.5) +
+  geom_segment(data = lizard.loadings, 
+               aes(x = 0, xend = MDS1, y = 0, yend = MDS2), 
+               color = "grey") +
+  geom_label_repel(data = lizard.loadings, 
+                   aes(x = MDS1, y = MDS2, label = species), 
+                   size = 3) +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  theme_bw() +
+  ggtitle("nMDS on Bray-Curtis")
+```
+]
+
+.pull-right[ .center[
+![](05-PCA_files/figure-html/unnamed-chunk-42-1.png)&lt;!-- --&gt;
+]]
+---
+class: center, middle
+&lt;img src="images/swamped.jpeg" width="60%" /&gt;
+---
+class: center, middle
+# The end
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"ratio": "16:9",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
