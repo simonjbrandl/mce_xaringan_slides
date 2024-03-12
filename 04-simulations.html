@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Marine Community Ecology 2024</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Simon J. Brandl" />
+    <script src="libs/header-attrs-2.25/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Marine Community Ecology 2024
+]
+.subtitle[
+## 04-Simulating ecological processes
+]
+.author[
+### Simon J. Brandl
+]
+.institute[
+### The University of Texas at Austin
+]
+.date[
+### 2024/01/01 (updated: 2024-02-26)
+]
+
+---
+
+
+background-image: url("images/IMG_2352.jpg")
+background-size: cover
+class: center, top, inverse
+
+# Simulating ecological processes
+
+
+
+&lt;style type="text/css"&gt;
+
+.scrollable {
+  height: 300px;
+  overflow-y: auto;
+}
+
+
+.scrollable-auto {
+  height: 75%;
+  overflow-y: auto;
+}
+
+.remark-slide-scaler {
+    overflow-y: auto;
+}
+&lt;/style&gt;
+
+---
+## Loops
+
+- Loops in R are an efficient way to perform repeated actions over a defined sequence
+
+- They follow a basic syntax that always starts with 'for', have a variable that denotes each iteration (usually denoted as a single letter), and are enclosed by curly brackets
+
+
+```r
+library(tidyverse) # load tidyverse package - you'll need it later
+```
+
+```
+## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.4
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+## ✔ purrr     1.0.2     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
+```
+
+```r
+for (i in 1:8) {
+  print(i)
+}
+```
+
+```
+## [1] 1
+## [1] 2
+## [1] 3
+## [1] 4
+## [1] 5
+## [1] 6
+## [1] 7
+## [1] 8
+```
+- pretty simple, but also not the most useful loop
+---
+### More useful loops 
+
+- Oftentimes, you will use for loops to iterate over an existing list or dataframe
+- Just as often, you will actually want to store the output of your for loop in a new object
+- Below we are creating abundance data for five different birds over ten years
+
+
+```r
+bird.list &lt;- c("shearwater", # create a list of four different marine birds
+               "albatross", 
+               "penguin", 
+               "booby") 
+num.years &lt;- 10 # create a vector that contains the number of years
+lambdas &lt;- c(10, 20, 30, 20) # create values for different poisson distributions
+
+bird.target.data &lt;- matrix(ncol = length(bird.list), # create an output matrix w
+                           nrow = num.years) 
+colnames(bird.target.data) &lt;- bird.list # name columns
+
+for (i in 1:length(bird.list)) { # initiate loop with i over the number of birds
+  x &lt;- rpois(10, lambdas[i]) # draw 10 values from the poisson with lambda i
+  bird.target.data[,i] &lt;- x # fill target dataset at position i with x
+}
+bird.target.data
+```
+
+```
+##       shearwater albatross penguin booby
+##  [1,]          7        16      30    17
+##  [2,]          8        20      23    21
+##  [3,]          4        18      26    20
+##  [4,]         12        24      34    20
+##  [5,]         10        18      26    15
+##  [6,]         11        25      33    23
+##  [7,]          8        17      30    13
+##  [8,]          8        19      32    20
+##  [9,]         14        24      35    20
+## [10,]          7        22      32    23
+```
+---
+# Numerical modeling
+.pull-left[
+- Great tool to understand the complex and dynamic nature of ecological processes
+
+- Often involve time-stepping simulations to explore dynamics over time
+
+- Applicable to all species in any ecosystem, including Daisyworld (Lovelock 1992, Phil Trans Roy Soc)
+]
+
+.pull-right[
+&lt;img src="images/daisyworld.png" width="100%" /&gt;
+]
+---
+class: center
+
+## The Moran Model 🤓
+
+### A neutral, closed community with no evolutionary forces
+
+Initial community of *J individuals* divided among *S species* 🐠 🐡
+
+&amp;darr;
+
+Select one individual at random to die 💀
+
+&amp;darr;
+
+Select one individual at random to reproduce, replacing the casualty 🐣
+
+&amp;darr;
+
+Rinse and repeat 🚿
+---
+### Running the model 
+
+- this code was adapted from [Vellend 2016: A Theory of Ecological Communities](https://press.princeton.edu/books/hardcover/9780691164847/the-theory-of-ecological-communities-mpb-57)
+
+
+```r
+num.sims &lt;- 20 # specify the number of simulations 
+num.years &lt;- 50 # specify the number of years
+freq.1.mat &lt;- matrix(ncol = num.sims, nrow = num.years) # create a matrix for output
+
+# FIRST LOOP FOR DIFFERENT SIMULATIONS
+for (j in 1:num.sims) { # use for-loop to run through the number of simulations
+  J &lt;- 100 # 100 individuals
+  t0.sp1 &lt;- 0.5*J  # abundance of species 1 at time 0 
+  community &lt;- vector(length = J) # set up community
+  community[1:t0.sp1] &lt;- 1 # specify that half of the community is species 1
+  community[(t0.sp1+1):J] &lt;- 2 # specify the other half is species 2
+  year &lt;- 2 # set 'year' to 2 
+  freq.1.mat[1,j] &lt;- sum(community==1)/J # fill community matrix
+ 
+  # SECOND LOOP FOR INDIVIDUAL DEATH/BIRTH
+  for (i in 1:(J*(num.years-1))) {  # second for-loop to run multiple simulations
+    freq.1 &lt;- sum(community==1)/J # freq.1 represents the frequency of species 1
+    pr.1 &lt;- freq.1 # pr.1 represents the frequency of reproduction
+    community[ceiling(J*runif(1))] &lt;- sample(c(1,2), 1, prob=c(pr.1,1-pr.1))  # birth and death rates, based on probabilities
+    
+    
+    if (i %% J == 0) { # record data in the freq.1.mat matrix 
+      freq.1.mat[year, j] &lt;- sum(community==1)/J
+      year &lt;- year + 1
+    }
+  }
+}
+
+colnames(freq.1.mat) &lt;- 1:num.sims # set column names in matrix
+freq.sp1.df &lt;- as.data.frame(freq.1.mat) %&gt;% # convert freq.1.mat into data frame 
+  add_column(year = 1:num.years) # add a column called year
+```
+---
+### Model output
+
+- let's take a look at the output of our model
+
+
+```r
+head(freq.sp1.df)
+```
+
+```
+##      1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+## 1 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50
+## 2 0.49 0.54 0.61 0.37 0.49 0.39 0.52 0.53 0.55 0.53 0.51 0.52 0.47 0.47 0.59
+## 3 0.57 0.67 0.49 0.40 0.43 0.44 0.59 0.59 0.56 0.47 0.52 0.43 0.62 0.44 0.61
+## 4 0.60 0.66 0.53 0.44 0.41 0.48 0.59 0.52 0.67 0.38 0.52 0.39 0.55 0.42 0.63
+## 5 0.47 0.82 0.63 0.36 0.57 0.56 0.64 0.44 0.73 0.46 0.57 0.32 0.47 0.36 0.71
+## 6 0.40 0.92 0.51 0.37 0.45 0.54 0.62 0.43 0.78 0.60 0.58 0.39 0.55 0.29 0.71
+##     16   17   18   19   20 year
+## 1 0.50 0.50 0.50 0.50 0.50    1
+## 2 0.48 0.42 0.44 0.59 0.66    2
+## 3 0.59 0.44 0.41 0.63 0.60    3
+## 4 0.58 0.51 0.54 0.67 0.56    4
+## 5 0.73 0.66 0.56 0.56 0.64    5
+## 6 0.75 0.69 0.54 0.46 0.60    6
+```
+
+- beautiful data, but we'll have to gather it if we want it to be tidy
+---
+### Processing and visualizing the model outputs
+.pull-left[
+- we can use our acquired skills in tidy data wrangling and ggplot to turn the model outputs into pretty plots
+
+
+```r
+freq.sp1.proc &lt;- freq.sp1.df %&gt;%
+  gather(1:20, key = iteration, value = frequency)
+
+p1 &lt;- ggplot(freq.sp1.proc, 
+             aes(x = year, 
+                 y = frequency, 
+                 group = iteration)) +
+  geom_line(aes(color = frequency), 
+            alpha = 0.8) +
+  scale_color_gradient(low = "darkorchid",
+                       high = "goldenrod") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_y_continuous(limits = c(0,1)) +
+  xlab("Years") +
+  ylab("Frequency of species 1")
+```
+]
+
+.pull-right[ .center[
+![](04-simulations_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+]]
+
+---
+### Changing model parameters
+
+- let's change the number of individuals to _1000_ and the number of years to _100_
+
+
+```r
+num.sims &lt;- 20  
+num.years &lt;- 100 # change number of years
+freq.1.mat &lt;- matrix(ncol = num.sims, nrow = num.years) # create a matrix for output
+
+for (j in 1:num.sims) { 
+  J &lt;- 1000 # change to 1000 individuals
+  t0.sp1 &lt;- 0.5*J  
+  community &lt;- vector(length = J) 
+  community[1:t0.sp1] &lt;- 1 
+  community[(t0.sp1+1):J] &lt;- 2 
+  year &lt;- 2 
+  freq.1.mat[1,j] &lt;- sum(community==1)/J 
+
+  for (i in 1:(J*(num.years-1))) { 
+    freq.1 &lt;- sum(community==1)/J 
+    pr.1 &lt;- freq.1 
+    community[ceiling(J*runif(1))] &lt;- sample(c(1,2), 1, prob=c(pr.1,1-pr.1))  
+    
+    if (i %% J == 0) { 
+      freq.1.mat[year, j] &lt;- sum(community==1)/J
+      year &lt;- year + 1
+    }
+  }
+}
+```
+---
+### Model results
+
+- let's see what this produced
+
+.pull-left[
+
+```r
+colnames(freq.1.mat) &lt;- 1:num.sims 
+freq.sp1.df &lt;- as.data.frame(freq.1.mat) %&gt;% 
+  add_column(year = 1:num.years) 
+
+freq.sp1.proc &lt;- freq.sp1.df %&gt;%
+  gather(1:20, key = iteration, value = frequency)
+
+p1 &lt;- ggplot(freq.sp1.proc, 
+             aes(x = year, 
+                 y = frequency, 
+                 group = iteration)) +
+  geom_line(aes(color = frequency), 
+            alpha = 0.8) +
+  scale_color_gradient(low = "darkorchid",
+                       high = "goldenrod") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_y_continuous(limits = c(0,1)) +
+  xlab("Years") +
+  ylab("Frequency of species 1")
+```
+]
+
+.pull-right[ .center[
+![](04-simulations_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+]]
+---
+class: center, middle
+&lt;img src="images/butterfly_meme.jpeg" width="60%" /&gt;
+---
+class: center, middle
+# The end
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"ratio": "16:9",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,608 @@
+---
+title: "Marine Community Ecology 2024"
+subtitle: "05-Principal Component Analysis"
+author: "Simon J. Brandl"
+institute: "The University of Texas at Austin"
+date: "2024/01/01 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    css: ["xaringan-themer.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      ratio: 16:9
+      highlightLines: true
+      countIncrementalSlides: false
+      navigation:
+        scroll: false
+editor_options: 
+  chunk_output_type: console
+---
+
+background-image: url("images/IMG_2798.JPG")
+background-size: cover
+class: center, top
+
+# Exploring communities with multivariate ordinations
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+### setup chunk
+# load packages
+library(xaringanthemer)
+library(fontawesome)
+library(emo)
+library(tidyverse)
+style_duo_accent_inverse(code_highlight_color = "#cc5500",
+  primary_color = "#85D3D1",
+  secondary_color = "#0D2A47",
+  code_inline_color = "grey",
+  inverse_background_color = "#85D3D1",
+  inverse_text_color = "#0D2A47",
+  code_inline_background_color = "#85D3D1",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono"),
+  colors = c(orange = "#cc5500",
+         teal = "#85D3D1")
+)
+```
+
+```{css, echo = FALSE}
+
+.scrollable {
+  height: 300px;
+  overflow-y: auto;
+}
+
+
+.scrollable-auto {
+  height: 75%;
+  overflow-y: auto;
+}
+
+.remark-slide-scaler {
+    overflow-y: auto;
+}
+```
+
+---
+# Multivariate analysis
+
+- Multivariate ordination techniques are our go-to tools to disentangle differences in community composition
+
+- these techniques include Principal Component Analyses (PCA), Principal Coordinate Analyses (PCoA), non-metric Multidimensional Scaling (nMDS), or Redundancy Analyses (RDA)
+
+- our workhorse package for many of these analyses is the [_vegan_ package](https://cran.r-project.org/web/packages/vegan/vegan.pdf) by Jari Oksanen
+
+```{r, echo = TRUE}
+#install.packages("vegan")
+library(vegan)
+```
+---
+## Principal components analysis (PCA)
+
+.pull-left[
+- PCA is perhaps the conceptually simplest ordination, but has requirements for the nature of the data
+
+- PCA requires data to conform to the normal distribution, with all columns having deciomal data from -Inf to +Inf
+
+- a good example for this type of data are the morphological traits of herbivorous fishes we have played with previously
+]
+
+.pull-right[ .center[
+```{r, echo = FALSE, out.width= "80%"}
+knitr::include_graphics("images/IMG_2931.JPG")
+```
+]]
+---
+### The herbivore trait dataset
+
+- the dataset contains different species of Indo-Pacific coral reef fishes, for which we have measured various morphological traits
+
+```{r, echo = TRUE}
+herbivore.morphology <- read.csv(file = "data/coralreefherbivores.csv")
+head(herbivore.morphology)
+```
+---
+### Isolating numeric data
+
+- ordinations generally require numeric data, so it's often convenient to divide your dataset into two different components: raw data and metadata
+
+- it can be helpful to set rownames for the raw data, as they will be carried forth throughout your ordination
+
+```{r, echo = TRUE}
+# make sure you have tidyverse package loaded
+library(tidyverse)
+herbivore.raw <- herbivore.morphology %>%
+  select(sl, bodydepth, snoutlength, eyediameter) # isolate four morphological traits
+rownames(herbivore.raw) <- herbivore.morphology$gen.spe # set rownames
+head(herbivore.raw)
+
+herbivore.meta <- herbivore.morphology %>% # isolate metadata
+  select(-sl, -bodydepth, -snoutlength, -eyediameter)
+```
+---
+### Running a PCA
+
+.pull-left[
+- running a PCA in R is very simple and there are several functions from different packages, including: <span style="color:orange">prcomp()</span> and <span style="color:orange">princomp()</span> in the _stats_ package, <span style="color:orange">PCA()</span> in the _FactoMineR_ package, <span style="color:orange">dudi.pca()</span> in the _ade4_ package, or the <span style="color:orange">rda()</span> function in the _vegan_ package
+
+- we will use the <span style="color:orange">rda()</span> function, which actually runs an RDA `r emo::ji("woozy_face")`
+
+```{r, echo = TRUE}
+herb.pca <- rda(herbivore.raw, scale = F)
+# this is all it takes to run a PCA
+```
+
+- for a quick and dirty look, we can use the biplot() function
+
+- this... doesn't look great `r emo::ji("face_with_monocle")`
+
+]
+
+.pull-right[
+
+```{r, echo = TRUE}
+biplot(herb.pca) 
+```
+]
+---
+### Scaling your data
+
+- the problem in the previous plot becomes very apparent when we look at the raw data
+
+```{r, echo = TRUE}
+summary(herbivore.raw)
+```
+
+- while bodydepth, snoutlength, and eyediameter are ratios with means in the low decimals, standard length (SL) has a mean of 203.3
+
+- PCA considers variables with larger values to be more important, which in this case, we do not want
+
+- luckily, we can address this easily by 'scaling' the data within the PCA
+---
+### Scaled PCA
+
+.pull-left[
+- we can easily implement the scaling in the PCA itself
+
+- to do so, simply state scale = TRUE in the <span style="color:orange">rda()</span> function
+
+```{r, echo = TRUE}
+trait.pca <- rda(herbivore.raw, scale = TRUE) # note the scale = TRUE part
+```
+]
+
+.pull-right[ .center[
+```{r, echo = TRUE}
+biplot(trait.pca) # make a very ugly plot
+```
+]]
+---
+### Understanding PCA output
+
+- to get the detailed output for your PCA, you need to call the object with the <span style="color:orange">summary()</span> function
+
+- note that 'species' in this example are really morphological traits, not species
+
+```{r, echo = TRUE}
+summary(trait.pca)
+```
+---
+class: center, middle
+```{r echo=FALSE, out.width="60%"}
+knitr::include_graphics("images/borat.jpeg")
+```
+---
+class: inverse, center, top
+
+# Exercise 5.1 `r emo::ji("weight_lifting_woman")`
+
+## Read in the fishcoms_lizardisland.csv file and perform the following:
+
+
+### a) Filter it to only include the Family Pomacentridae, then summarize the abundance for each site and exposure regime
+
+### b) Spread the dataset based on species (with missing values replaced with 0s), and separate it into the abundance data and metadata
+
+### c) Run a PCA on the abundance data with scale = TRUE and call its summary
+
+---
+class: center, top
+# Solution 5.1a `r emo::ji("nerd_face")`
+
+```{r, echo = TRUE, error = TRUE}
+lizardfish <- read.csv(file =  "data/fishcoms_lizardisland.csv") %>%
+  filter(Family == "Pomacentridae") %>%
+  group_by(Site, Exposure, species) %>%
+  summarize(abundance = sum(abundance))
+```
+---
+class: center, top
+# Solution 5.1b `r emo::ji("nerd_face")`
+
+```{r, echo = TRUE, error = TRUE}
+lizardfish.wide <- lizardfish %>%
+  spread(key = species, value = abundance, fill = 0)
+
+lfish.raw <- lizardfish.wide[-c(1:2)]
+lfish.meta <- lizardfish.wide[c(1:2)]
+```
+---
+class: center, top
+# Solution 5.1c `r emo::ji("nerd_face")`
+
+```{r, echo = TRUE, error = TRUE}
+lfish.pca <- rda(lfish.raw, scale = TRUE)
+summary(lfish.pca)
+```
+---
+## Visualizing PCAs
+
+- R has an out-of-the-box plotting function that gives you a quick overview: the <span style="color:orange">biplot()</span> function
+
+- those plots are ugly, but they give you a quick first glance as to whether it looks half decent
+
+```{r, echo = TRUE}
+biplot(lfish.pca)
+```
+---
+### Screeplots
+
+- one good way of quickly visualizing how much variation is explained by each axis is the <span style="color:orange">screeplot()</span> function
+
+```{r, echo = TRUE}
+screeplot(lfish.pca, type = "line") # type = specifies whether you want bars or lines
+```
+---
+### Biplots: reloaded
+
+- the aesthetics of the biplot can be improved slightly
+
+```{r, echo = TRUE}
+# make the basic plot
+biplot(lfish.pca,
+       type = c("text", "points"),
+       col = c("black", "grey"))
+# add convex hulls around the points by family
+ordihull(lfish.pca,
+         group = lfish.meta$Exposure,
+         col = c("blue", "goldenrod2", "forestgreen", "orchid"))
+# add legend
+exposures <- sort(unique(lfish.meta$Exposure))
+legend("topright",
+       col = c("blue", "goldenrod2", "forestgreen", "orchid"), 
+       lty = 1,
+       legend = exposures)
+```
+---
+### Using ggplot2
+
+-  we can use ggplot, but this requires a bit of tinkering: we have to take the scenic route and extract the data ourselves
+
+- there are two main layers in the plot: the loadings (our species) and the site scores
+
+- we can access both of these through the summary() object
+
+```{r, echo = TRUE}
+sum.lfish.pca <- summary(lfish.pca)
+```
+---
+### Extract summary outputs
+
+- simply call the respective objects
+
+```{r, echo = TRUE}
+site.scores <- as.data.frame(sum.lfish.pca$sites) %>% # get the site scores into a data.frame
+  bind_cols(lfish.meta) # combine it with the meta-data
+
+head(site.scores)
+
+species.scores <- as.data.frame(sum.lfish.pca$species) %>%
+  mutate(species = rownames(.)) # need a new species column
+
+head(species.scores)
+```
+---
+### Plot data
+
+.pull-left[
+- now you can simply plot your two datasets, but note that you have to re-specify the different datasets
+
+```{r, echo = TRUE}
+pca.ggplot <- ggplot() +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_text(data = species.scores, aes(x = PC1, y = PC2, label = species)) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+
+- not so bad, except there's a big old mess of species in the middle
+]
+
+.pull-right[ .center[
+```{r, echo = F}
+pca.ggplot
+```
+]]
+---
+### Parsing out loadings
+
+- with so many loadings, you may want to reduce the number of species to display
+
+- you can simply select the species that are most characteristic for PC1 or PC2
+
+- an easy way to do this is to filter by the _absolute_ value on PC1 and PC2 
+
+```{r, echo = TRUE}
+species.scores.filt <- species.scores %>%
+  filter(abs(PC1) > 0.5 | abs(PC2) > 0.5)
+```
+---
+### Revised plot
+
+.pull-left[
+- to further help with the vectors, we can use the 'repel' function from the _ggrepel_ package
+
+```{r, echo = T}
+library(ggrepel)
+pca.ggplot <- ggplot() +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_text_repel(data = species.scores.filt, aes(x = PC1, y = PC2, label = species)) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+]
+
+.pull-right[ .pull-center[
+```{r, echo = F}
+pca.ggplot
+```
+]]
+---
+### Better labels
+
+.pull-left[
+- we can improve the labels with segments and the geom_label_repel function
+
+```{r, echo = T}
+library(ggrepel)
+pca.ggplot <- ggplot() +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_segment(data = species.scores.filt, aes(x = 0, xend = PC1, y = 0, yend = PC2), color = "grey") +
+  geom_label_repel(data = species.scores.filt, aes(x = PC1, y = PC2, label = species), size = 3) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+]
+
+.pull-right[ .pull-center[
+```{r, echo = F}
+pca.ggplot
+```
+]]
+---
+### Polygons
+
+- finally, we can add some polygons around our groups
+
+- the <span style="color:orange">slice()</span> function helps us here, but we have to create a new dataset for it
+
+```{r, echo = T}
+hulls <- site.scores %>%
+  group_by(Exposure) %>%
+  slice(chull(PC1, PC2))
+hulls
+```
+---
+### Plotting polygons
+
+
+.pull-left[
+- geom_polygon is your friend, but it needs a grouping argument
+
+```{r, echo = T}
+pca.ggplot <- ggplot() +
+  geom_polygon(data = hulls, aes(x = PC1, y = PC2, group = Exposure, fill = Exposure), alpha = 0.5) +
+  geom_point(data = site.scores, aes(x = PC1, y = PC2, color = Exposure)) +
+  geom_segment(data = species.scores.filt, aes(x = 0, xend = PC1, y = 0, yend = PC2), color = "grey") +
+  geom_label_repel(data = species.scores.filt, aes(x = PC1, y = PC2, label = species), size = 3) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid"))
+```
+]
+
+.pull-right[ .pull-center[
+```{r, echo = F}
+pca.ggplot
+```
+]]
+---
+class: center, middle
+```{r echo=FALSE, out.width="60%"}
+knitr::include_graphics("images/IMG_2931.JPG")
+```
+---
+## Beyond simple PCA
+
+- remember how PCA should only be used for certain types of data?
+
+- it's not really appropriate for the type we just used - we can do better
+
+- for abundance data, the Hellinger transformation is great, which is implemented using the <span style="color:orange">decostand()</span> function
+
+```{r, echo=TRUE}
+lizard.hell <- decostand(lfish.raw, method = "hellinger")
+head(lizard.hell)
+```
+---
+### Hellinger transformed data
+
+- we can run the same PCA as before, but with Hellinger transformed data
+
+```{r, echo = TRUE}
+lfish.pca.hell <- summary(rda(lizard.hell, scale = T))
+
+lizard.scores <- as.data.frame(lfish.pca.hell$sites) %>%
+  bind_cols(lfish.meta)
+
+lizard.hulls <- lizard.scores %>%
+  group_by(Exposure) %>%
+  slice(chull(PC1, PC2))
+
+lizard.loadings <- as.data.frame(lfish.pca.hell$species) %>%
+  mutate(species = rownames(.)) %>%
+  filter(abs(PC1) > 0.5 | abs(PC2) > 0.5)
+```
+---
+### Plot the PCA
+
+.pull-left[
+```{r, echo = TRUE}
+lizard.plot <- ggplot() +
+  geom_point(data = lizard.scores, 
+             aes(x = PC1, y = PC2, color = Exposure), 
+             size = 2) +
+  geom_polygon(data = lizard.hulls, 
+               aes(x = PC1, PC2, fill = Exposure), 
+               alpha = 0.5) +
+  geom_segment(data = lizard.loadings, 
+               aes(x = 0, xend = PC1, y = 0, yend = PC2), 
+               color = "grey") +
+  geom_label_repel(data = lizard.loadings, 
+                   aes(x = PC1, y = PC2, label = species), 
+                   size = 3) +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  theme_bw() +
+  xlab("PC1 (21.8%)") +
+  ylab("PC2 (17.8%)") +
+  ggtitle("Hellinger transformed PCA, scale = T")
+```
+]
+
+.pull-right[ .center[
+```{r, echo = F}
+lizard.plot
+```
+]]
+---
+### Unscaled PCA
+
+- if we assume that actual abundances are important infromation, we may choose to run the PCA without the normalization
+
+```{r, echo = T}
+lfish.pca.hell <- summary(rda(lizard.hell, scale = F)) # note scale = F
+
+lizard.scores <- as.data.frame(lfish.pca.hell$sites) %>%
+  bind_cols(lfish.meta)
+
+lizard.hulls <- lizard.scores %>%
+  group_by(Exposure) %>%
+  slice(chull(PC1, PC2))
+
+lizard.loadings <- as.data.frame(lfish.pca.hell$species) %>%
+  mutate(species = rownames(.)) %>%
+  filter(abs(PC1) > 0.1 | abs(PC2) > 0.1)
+```
+---
+### Plot the PCA
+
+.pull-left[
+```{r, echo = TRUE}
+lizard.plot <- ggplot() +
+  geom_point(data = lizard.scores, 
+             aes(x = PC1, y = PC2, color = Exposure), 
+             size = 2) +
+  geom_polygon(data = lizard.hulls, 
+               aes(x = PC1, PC2, fill = Exposure), 
+               alpha = 0.5) +
+  geom_segment(data = lizard.loadings, 
+               aes(x = 0, xend = PC1, y = 0, yend = PC2), 
+               color = "grey") +
+  geom_label_repel(data = lizard.loadings, 
+                   aes(x = PC1, y = PC2, label = species), 
+                   size = 3) +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  theme_bw() +
+  xlab("PC1 (21.8%)") +
+  ylab("PC2 (17.8%)") +
+  ggtitle("Hellinger transformed PCA, scale = F")
+```
+]
+
+.pull-right[ .center[
+```{r, echo = F}
+lizard.plot
+```
+]]
+---
+### Distance-based ordination
+
+- we can also move beyond Euclidean distances by implementing a PCoA or nMDS
+
+- nMDS works with the <span style="color:orange">metaMDS()</span> function
+
+```{r, echo = T}
+lizard.mds <- metaMDS(comm = lfish.raw, k = 2, trymax = 1000, distance = "bray")
+lizard.mds
+
+stressplot(lizard.mds)
+```
+---
+### Plotting nMDS
+
+- the principle is the exact same, but the names are different
+
+```{r, echo = T}
+lizard.scores <- as.data.frame(lizard.mds$points) %>%
+  bind_cols(lfish.meta)
+
+lizard.hulls <- lizard.scores %>%
+  group_by(Exposure) %>%
+  slice(chull(MDS1, MDS2))
+
+lizard.loadings <- as.data.frame(lizard.mds$species) %>%
+  mutate(species = rownames(.)) %>%
+  filter(abs(MDS1) > 0.5 | abs(MDS2) > 0.5)
+```
+---
+### Plot the nMDS
+
+.pull-left[
+```{r, echo = TRUE}
+lizard.plot <- ggplot() +
+  geom_point(data = lizard.scores, 
+             aes(x = MDS1, y = MDS2, color = Exposure), 
+             size = 2) +
+  geom_polygon(data = lizard.hulls, 
+               aes(x = MDS1, MDS2, fill = Exposure), 
+               alpha = 0.5) +
+  geom_segment(data = lizard.loadings, 
+               aes(x = 0, xend = MDS1, y = 0, yend = MDS2), 
+               color = "grey") +
+  geom_label_repel(data = lizard.loadings, 
+                   aes(x = MDS1, y = MDS2, label = species), 
+                   size = 3) +
+  scale_color_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  scale_fill_manual(values = c("blue", "goldenrod2", "forestgreen", "orchid")) +
+  theme_bw() +
+  ggtitle("nMDS on Bray-Curtis")
+```
+]
+
+.pull-right[ .center[
+```{r, echo = F}
+lizard.plot
+```
+]]
+---
+class: center, middle
+```{r echo=FALSE, out.width="60%"}
+knitr::include_graphics("images/swamped.jpeg")
+```
+---
+class: center, middle
+# The end
