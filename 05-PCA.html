@@ -24,7 +24,7 @@ class: center, middle, inverse, title-slide
 ### The University of Texas at Austin
 ]
 .date[
-### 2024/01/01 (updated: 2024-03-10)
+### 2024/01/01 (updated: 2024-03-11)
 ]
 
 ---
@@ -563,7 +563,7 @@ screeplot(lfish.pca, type = "line") # type = specifies whether you want bars or 
 ---
 ### Biplots: reloaded
 
-- the aesthetics of the biplotcan be improved slightly
+- the aesthetics of the biplot can be improved slightly
 
 
 ```r
@@ -977,45 +977,52 @@ lizard.mds &lt;- metaMDS(comm = lfish.raw, k = 2, trymax = 1000, distance = "bra
 ## Square root transformation
 ## Wisconsin double standardization
 ## Run 0 stress 0.09169344 
-## Run 1 stress 0.1796301 
-## Run 2 stress 0.09169345 
-## ... Procrustes: rmse 1.845801e-05  max resid 2.7702e-05 
+## Run 1 stress 0.09169344 
+## ... New best solution
+## ... Procrustes: rmse 8.383827e-06  max resid 2.170743e-05 
+## ... Similar to previous best
+## Run 2 stress 0.09169344 
+## ... Procrustes: rmse 2.873357e-05  max resid 8.045872e-05 
 ## ... Similar to previous best
 ## Run 3 stress 0.09169344 
-## ... New best solution
-## ... Procrustes: rmse 1.048891e-05  max resid 2.835689e-05 
+## ... Procrustes: rmse 2.887345e-06  max resid 7.848097e-06 
 ## ... Similar to previous best
-## Run 4 stress 0.1206023 
-## Run 5 stress 0.1206023 
+## Run 4 stress 0.09169344 
+## ... Procrustes: rmse 3.458672e-05  max resid 9.529778e-05 
+## ... Similar to previous best
+## Run 5 stress 0.1887111 
 ## Run 6 stress 0.09169344 
+## ... Procrustes: rmse 5.099005e-06  max resid 1.379039e-05 
+## ... Similar to previous best
+## Run 7 stress 0.1796301 
+## Run 8 stress 0.1743645 
+## Run 9 stress 0.1206023 
+## Run 10 stress 0.1887111 
+## Run 11 stress 0.09169344 
+## ... Procrustes: rmse 1.048765e-05  max resid 2.542189e-05 
+## ... Similar to previous best
+## Run 12 stress 0.09169344 
 ## ... New best solution
-## ... Procrustes: rmse 1.113205e-05  max resid 3.052324e-05 
+## ... Procrustes: rmse 8.628031e-06  max resid 2.195767e-05 
 ## ... Similar to previous best
-## Run 7 stress 0.09169345 
-## ... Procrustes: rmse 4.523458e-05  max resid 0.0001247062 
+## Run 13 stress 0.17963 
+## Run 14 stress 0.09169344 
+## ... New best solution
+## ... Procrustes: rmse 3.314301e-06  max resid 7.293831e-06 
 ## ... Similar to previous best
-## Run 8 stress 0.09169344 
-## ... Procrustes: rmse 2.139453e-05  max resid 5.902227e-05 
+## Run 15 stress 0.09169344 
+## ... Procrustes: rmse 4.052177e-06  max resid 1.128058e-05 
 ## ... Similar to previous best
-## Run 9 stress 0.1718319 
-## Run 10 stress 0.09169344 
-## ... Procrustes: rmse 3.35609e-06  max resid 8.852263e-06 
+## Run 16 stress 0.3335879 
+## Run 17 stress 0.1206023 
+## Run 18 stress 0.09169344 
+## ... Procrustes: rmse 1.939291e-05  max resid 5.35626e-05 
 ## ... Similar to previous best
-## Run 11 stress 0.1743695 
-## Run 12 stress 0.1206023 
-## Run 13 stress 0.1720132 
-## Run 14 stress 0.2484973 
-## Run 15 stress 0.1720133 
-## Run 16 stress 0.2835456 
-## Run 17 stress 0.09169344 
-## ... Procrustes: rmse 1.053962e-05  max resid 2.810131e-05 
+## Run 19 stress 0.1796301 
+## Run 20 stress 0.09169344 
+## ... Procrustes: rmse 4.065026e-06  max resid 9.616562e-06 
 ## ... Similar to previous best
-## Run 18 stress 0.1743697 
-## Run 19 stress 0.09169344 
-## ... Procrustes: rmse 2.18278e-05  max resid 5.960933e-05 
-## ... Similar to previous best
-## Run 20 stress 0.1206023 
-## *** Best solution repeated 6 times
+## *** Best solution repeated 4 times
 ```
 
 ```r
@@ -1035,8 +1042,8 @@ lizard.mds
 ## Dimensions: 2 
 ## Stress:     0.09169344 
 ## Stress type 1, weak ties
-## Best solution was repeated 6 times in 20 tries
-## The best solution was from try 6 (random start)
+## Best solution was repeated 4 times in 20 tries
+## The best solution was from try 14 (random start)
 ## Scaling: centring, PC rotation, halfchange scaling 
 ## Species: expanded scores based on 'wisconsin(sqrt(lfish.raw))'
 ```

@@ -257,7 +257,7 @@ screeplot(lfish.pca, type = "line") # type = specifies whether you want bars or 
 ---
 ### Biplots: reloaded
 
-- the aesthetics of the biplotcan be improved slightly
+- the aesthetics of the biplot can be improved slightly
 
 ```{r, echo = TRUE}
 # make the basic plot
